@@ -1,6 +1,6 @@
-import Bihag from "./Bihag";
+import Bihag from "./bihag";
 
 export default function Home() {
-  return <Bihag />;
+  return <bihag />;
 }
 
