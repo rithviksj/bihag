@@ -1,3 +1,5 @@
+"use client";
+
 // Bihag - The Classy Playlist Maker
 // Streamlit-style, classy + cheeky
 
@@ -90,4 +92,3 @@ export default function Bihag() {
     </div>
   );
 }
-
