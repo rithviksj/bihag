@@ -62,7 +62,7 @@ export default function Bihag() {
     });
 
     if (tracks.length) {
-      setParsedList(tracks);
+      setParsedList(tracks.slice(0, 2));
     } else {
       alert("No recognizable tracks found in uploaded HTML.");
     }
