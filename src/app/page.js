@@ -26,10 +26,14 @@ export default function Bihag() {
         })
         .then(() => {
           const authInstance = window.gapi.auth2.getAuthInstance();
-          const isAuthed = authInstance.isSignedIn.get();
-          setIsSignedIn(isAuthed);
+          function updateSignInStatus() {
+  const authInstance = window.gapi.auth2.getAuthInstance();
+  const isSigned = authInstance && authInstance.isSignedIn.get();
+  setIsSignedIn(isSigned);
+}
 
-          authInstance.isSignedIn.listen(setIsSignedIn);
+updateSignInStatus();
+window.gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
         });
     });
   };
