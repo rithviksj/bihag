@@ -5,8 +5,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent } from "../components/ui/card";
 
-const CLIENT_ID = "79438826423-8grkihuiaedjn815odj871rv1cj540j3.apps.googleusercontent.com";
-
+const CLIENT_ID = "YOUR_GOOGLE_OAUTH_CLIENT_ID"; // Replace with your actual OAuth client ID
 
 export default function Bihag() {
   const [playlistName, setPlaylistName] = useState("");
@@ -33,13 +32,15 @@ export default function Bihag() {
     document.body.appendChild(script);
   }, []);
 
-  
   const handleLogin = async () => {
-  await window.gapi.auth2.getAuthInstance().signIn();
-  setIsSignedIn(window.gapi.auth2.getAuthInstance().isSignedIn.get());
+  try {
+    await window.gapi.auth2.getAuthInstance().signIn();
+    const isNowSignedIn = window.gapi.auth2.getAuthInstance().isSignedIn.get();
+    setIsSignedIn(isNowSignedIn);
+  } catch (err) {
+    console.error("Sign-in failed:", err);
+  }
 };
-
-
 
   const handleLogout = () => {
     window.gapi.auth2.getAuthInstance().signOut();
