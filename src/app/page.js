@@ -24,13 +24,13 @@ export default function Home() {
     <div className="max-w-xl mx-auto p-6">
       <h1 className="text-3xl font-bold text-center mb-4">🧓 Bihag</h1>
       <p className="text-center text-muted-foreground mb-2">
-        For banger-loving grandmas, hot girls, and all vinyl souls 🎶
+        For the vinyl souls of the world 🎶
       </p>
 
       <div className="text-sm text-center mb-6 text-muted-foreground">
-        <strong>What is this?</strong> Upload or paste a tracklist from Discogs, Billboard, or Wikipedia. We'll turn it into a banger-ready YouTube playlist.
+        <strong>What is this?</strong> Upload the html file from  the page containing ur playlist from  Discogs, Billboard, or Wikipedia. We'll turn it into a banger-ready YouTube playlist.
         <br />
-        <strong>How it works:</strong> Paste your tracklist → Click the button → Get your playlist link.
+        <strong>How it works:</strong> upload the html page → Click the button → Get your playlist link.
       </div>
 
       <Card className="mb-4">
@@ -79,9 +79,9 @@ export default function Home() {
       </div>
 
       <div className="text-center text-xs mt-4">
-        💌 Share this app with friends — next time you walk into work,
+        💌 Share this app with friends !
         <br />
-        bras may fly, cheeks will blush, and vibes will erupt.
+        
       </div>
     </div>
   );
