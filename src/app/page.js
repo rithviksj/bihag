@@ -15,29 +15,25 @@ export default function Bihag() {
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://apis.google.com/js/api.js";
-    script.onload = () => {
-      window.gapi.load("client:auth2", () => {
-        window.gapi.client.init({
-  clientId: CLIENT_ID,
-  scope: "https://www.googleapis.com/auth/youtube"
-}).then(() => {
-  const authInstance = window.gapi.auth2.getAuthInstance();
-  const currentUser = authInstance.currentUser.get();
-  const isAuthed = authInstance.isSignedIn.get();
-  setIsSignedIn(isAuthed);
-  if (!isAuthed) {
-    authInstance.signIn().then(() => {
-      setIsSignedIn(authInstance.isSignedIn.get());
-    });
-  }
-  authInstance.isSignedIn.listen(setIsSignedIn);
-});
+  const script = document.createElement("script");
+  script.src = "https://apis.google.com/js/api.js";
+  script.onload = () => {
+    window.gapi.load("client:auth2", () => {
+      window.gapi.client
+        .init({
+          clientId: CLIENT_ID,
+          scope: "https://www.googleapis.com/auth/youtube"
+        })
+        .then(() => {
+          const authInstance = window.gapi.auth2.getAuthInstance();
+          const isAuthed = authInstance.isSignedIn.get();
+          setIsSignedIn(isAuthed);
+
+          authInstance.isSignedIn.listen(setIsSignedIn);
         });
-      });
-    };
-    document.body.appendChild(script);
+    });
+  };
+  document.body.appendChild(script);
   }, []);
 
   const handleLogin = async () => {
