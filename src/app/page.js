@@ -12,6 +12,7 @@ export default function Bihag() {
   const [parsedList, setParsedList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [playlistLink, setPlaylistLink] = useState(null);
+  const [addedTracks, setAddedTracks] = useState([]);
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
@@ -92,9 +93,43 @@ const accessToken = window.googleAccessToken;
       const data = await response.json();
       const playlistId = data.id;
 
+      const added = [];
       for (let i = 0; i < Math.min(2, parsedList.length); i++) {
         const query = parsedList[i];
+        console.log("Searching YouTube for:", query);
         const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&maxResults=1&type=video`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            Accept: "application/json"
+          }
+        });
+
+        const searchJson = await searchRes.json();
+        console.log("Search result:", searchJson);
+        const videoId = searchJson.items?.[0]?.id?.videoId;
+
+        if (videoId) {
+          await fetch("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              snippet: {
+                playlistId,
+                resourceId: {
+                  kind: "youtube#video",
+                  videoId,
+                }
+              }
+            })
+          });
+          added.push(query);
+        }
+      }
+      setAddedTracks(added);&maxResults=1&type=video`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
             Accept: "application/json"
@@ -237,6 +272,16 @@ const accessToken = window.googleAccessToken;
                 >
                   View on YouTube
                 </a>
+              </div>
+            )}
+          {addedTracks.length > 0 && (
+              <div className="text-sm mt-6">
+                <p className="font-semibold mb-2">✅ Successfully added tracks:</p>
+                <ul className="list-disc list-inside">
+                  {addedTracks.map((track, i) => (
+                    <li key={i}>{track}</li>
+                  ))}
+                </ul>
               </div>
             )}
           </CardContent>
