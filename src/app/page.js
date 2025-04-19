@@ -26,11 +26,22 @@ export default function Bihag() {
           callback: (response) => {
             if (response.credential) {
               setIsSignedIn(true);
-              window.googleToken = response.credential;
             }
           },
         });
+
         window.google.accounts.id.prompt();
+
+        window.googleTokenClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: 'https://www.googleapis.com/auth/youtube',
+          callback: (tokenResponse) => {
+            if (tokenResponse && tokenResponse.access_token) {
+              window.googleAccessToken = tokenResponse.access_token;
+            }
+          },
+        });
+      }
       }
     };
     document.body.appendChild(script);
@@ -49,7 +60,16 @@ export default function Bihag() {
     setLoading(true);
 
     try {
-      const accessToken = window.googleToken;
+      if (!window.googleAccessToken) {
+  await new Promise((resolve) => {
+    window.googleTokenClient.callback = (tokenResponse) => {
+      window.googleAccessToken = tokenResponse.access_token;
+      resolve();
+    };
+    window.googleTokenClient.requestAccessToken();
+  });
+}
+const accessToken = window.googleAccessToken;
 
       const response = await fetch("https://www.googleapis.com/youtube/v3/playlists?part=snippet%2Cstatus", {
         method: "POST",
