@@ -23,7 +23,7 @@ export default function Home() {
 
   return (
     <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-center mb-4">🧓 Bihag</h1>
+      <h1 className="text-3xl font-bold text-center mb-4">Bihag</h1>
       <p className="text-center text-muted-foreground mb-2">
         For the vinyl souls of the world 🎶
       </p>
