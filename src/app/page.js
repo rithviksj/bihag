@@ -4,11 +4,9 @@ import React, { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent } from "../components/ui/card";
-import { Textarea } from "../components/ui/textarea";
 
 export default function Bihag() {
   const [playlistName, setPlaylistName] = useState("");
-  const [tracklist, setTracklist] = useState("");
   const [parsedList, setParsedList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [playlistLink, setPlaylistLink] = useState(null);
@@ -26,19 +24,45 @@ export default function Bihag() {
     const doc = parser.parseFromString(htmlString, "text/html");
     let tracks = [];
 
-    const rows = doc.querySelectorAll("tr[data-track-position]");
-    if (rows.length) {
-      rows.forEach((row) => {
-        const artistTags = row.querySelectorAll("td.artist__Aq2S a");
-        const artist = Array.from(artistTags).map(a => a.textContent.trim()).join(", ");
-        const title = row.querySelector("td.trackTitleWithArtist_igX0j span")?.textContent.trim();
-        if (artist && title) tracks.push(`${artist} - ${title}`);
+    doc.querySelectorAll("div.tracklist_track_title")?.forEach(div => {
+      const title = div.textContent.trim();
+      if (title) tracks.push(title);
+    });
+
+    doc.querySelectorAll("li.o-chart-results-list__item > h3")?.forEach(h3 => {
+      const title = h3.textContent.trim();
+      const artist = h3.nextElementSibling?.textContent.trim() || "";
+      if (title) tracks.push(`${artist} - ${title}`.trim());
+    });
+
+    doc.querySelectorAll("table")?.forEach(table => {
+      table.querySelectorAll("tr")?.forEach(row => {
+        const cols = row.querySelectorAll("td");
+        if (cols.length === 4) {
+          const artist = cols[1].textContent.replace("–", "").trim();
+          const title = cols[2].textContent.trim();
+          if (artist && title) tracks.push(`${artist} - ${title}`);
+        }
       });
-    }
+    });
+
+    doc.querySelectorAll("ul li")?.forEach(li => {
+      const text = li.textContent;
+      if (text.includes("-")) {
+        const [title, artist] = text.split("-", 2);
+        if (title && artist) tracks.push(`${artist.trim()} - ${title.trim()}`);
+      }
+    });
+
+    doc.querySelectorAll("tr[data-track-position]")?.forEach(row => {
+      const artistTags = row.querySelectorAll("td.artist__Aq2S a");
+      const artist = Array.from(artistTags).map(a => a.textContent.trim()).join(", ");
+      const title = row.querySelector("td.trackTitleWithArtist_igX0j span")?.textContent.trim();
+      if (artist && title) tracks.push(`${artist} - ${title}`);
+    });
 
     if (tracks.length) {
       setParsedList(tracks);
-      setTracklist(tracks.join("\n"));
     } else {
       alert("No recognizable tracks found in uploaded HTML.");
     }
@@ -53,45 +77,36 @@ export default function Bihag() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-10">
-      <h1 className="text-4xl font-bold text-center mb-2">Bihag</h1>
-      <p className="text-center text-muted-foreground text-lg mb-8">
+    <div className="max-w-3xl mx-auto px-8 py-14 font-serif">
+      <h1 className="text-5xl font-bold text-center mb-4 tracking-tight">Bihag</h1>
+      <p className="text-center text-muted-foreground text-lg mb-12">
         Turn your HTML tracklists into beautiful YouTube playlists 🎶
       </p>
 
-      <Card className="mb-10 shadow-md border border-gray-200">
-        <CardContent className="space-y-6 pt-6">
-          <div className="space-y-2">
+      <Card className="mb-16 shadow-lg border border-gray-200">
+        <CardContent className="space-y-8 pt-8 pb-10 px-6">
+          <div className="space-y-3">
             <label className="text-sm font-medium">Upload HTML Playlist File</label>
-            <Input type="file" accept=".html" onChange={handleFileUpload} />
+            <Input type="file" accept=".html" onChange={handleFileUpload} className="py-2 text-base" />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             <label className="text-sm font-medium">Playlist Name</label>
             <Input
               placeholder="e.g., 2020 Grammy Gold"
               value={playlistName}
               onChange={(e) => setPlaylistName(e.target.value)}
+              className="py-2 text-base"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Tracklist</label>
-            <Textarea
-              rows={6}
-              placeholder="Paste or auto-populated tracklist (e.g., Artist - Title)"
-              value={tracklist}
-              onChange={(e) => setTracklist(e.target.value)}
-            />
-          </div>
-
-          <Button onClick={handleSubmit} disabled={loading} className="w-full">
+          <Button onClick={handleSubmit} disabled={loading} className="w-full text-base py-2.5">
             {loading ? "Crafting your playlist... 🎧" : "Create YouTube Playlist"}
           </Button>
 
           {playlistLink && (
-            <div className="text-center mt-4">
-              <p className="text-sm">Your playlist is ready!</p>
+            <div className="text-center mt-6">
+              <p className="text-base">Your playlist is ready!</p>
               <a
                 href={playlistLink}
                 target="_blank"
@@ -106,9 +121,9 @@ export default function Bihag() {
       </Card>
 
       {parsedList.length > 0 && (
-        <div className="mb-12">
-          <h2 className="text-xl font-semibold mb-3">📃 Parsed Tracklist:</h2>
-          <ul className="list-disc list-inside space-y-1 text-sm">
+        <div className="mb-20">
+          <h2 className="text-2xl font-semibold mb-4">📃 Parsed Tracklist</h2>
+          <ul className="list-disc list-inside space-y-2 text-base">
             {parsedList.map((track, i) => (
               <li key={i}>{track}</li>
             ))}
@@ -116,7 +131,7 @@ export default function Bihag() {
         </div>
       )}
 
-      <div className="text-center text-sm text-muted-foreground">
+      <div className="text-center text-base text-muted-foreground mb-3">
         💖 Enjoying this tool?
         <br />
         <a
@@ -128,10 +143,8 @@ export default function Bihag() {
         </a>
       </div>
 
-      <div className="text-center text-xs mt-4 text-muted-foreground">
-        🌍 Share this app with friends and music lovers —
-        <br />
-        and let’s make the internet sound better.
+      <div className="text-center text-sm text-muted-foreground">
+        🌍 Share this app with friends and music lovers — let’s make the internet sound better.
       </div>
     </div>
   );
