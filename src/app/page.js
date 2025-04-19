@@ -129,9 +129,7 @@ const accessToken = window.googleAccessToken;
           added.push(query);
         }
       }
-      setAddedTracks(added);&maxResults=1&type=video`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
+      setAddedTracks(added);`,
             Accept: "application/json"
           }
         });
