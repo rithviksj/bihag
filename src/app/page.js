@@ -5,7 +5,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent } from "../components/ui/card";
 
-const CLIENT_ID = "YOUR_GOOGLE_OAUTH_CLIENT_ID"; // Replace with your actual OAuth client ID
+const CLIENT_ID = "79438826423-8grkihuiaedjn815odj871rv1cj540j3.apps.googleusercontent.com"; // Replace with your actual OAuth client ID
 
 export default function Bihag() {
   const [playlistName, setPlaylistName] = useState("");
