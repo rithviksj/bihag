@@ -15,47 +15,33 @@ export default function Bihag() {
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
-  const script = document.createElement("script");
-  script.src = "https://apis.google.com/js/api.js";
-  script.onload = () => {
-    window.gapi.load("client:auth2", () => {
-      window.gapi.client
-        .init({
-          clientId: CLIENT_ID,
-          scope: "https://www.googleapis.com/auth/youtube"
-        })
-        .then(() => {
-          const authInstance = window.gapi.auth2.getAuthInstance();
-          function updateSignInStatus() {
-  const authInstance = window.gapi.auth2.getAuthInstance();
-  if (authInstance) {
-    const user = authInstance.currentUser.get();
-    const isSigned = user && user.isSignedIn();
-    console.log("Sign-in status:", isSigned);
-    setIsSignedIn(isSigned);
-  }
-}
-
-updateSignInStatus();
-window.gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      if (window.google) {
+        window.google.accounts.id.initialize({
+          client_id: CLIENT_ID,
+          callback: (response) => {
+            if (response.credential) {
+              setIsSignedIn(true);
+              window.googleToken = response.credential;
+            }
+          },
         });
-    });
-  };
-  document.body.appendChild(script);
+        window.google.accounts.id.prompt();
+      }
+    };
+    document.body.appendChild(script);
   }, []);
 
-  const handleLogin = async () => {
-  try {
-    await window.gapi.auth2.getAuthInstance().signIn();
-    const isNowSignedIn = window.gapi.auth2.getAuthInstance().isSignedIn.get();
-    setIsSignedIn(isNowSignedIn);
-  } catch (err) {
-    console.error("Sign-in failed:", err);
-  }
+  const handleLogin = () => {
+  window.google?.accounts.id.prompt();
 };
 
   const handleLogout = () => {
-    window.gapi.auth2.getAuthInstance().signOut();
+    window.google.accounts.id.disableAutoSelect(); setIsSignedIn(false);
   };
 
   const handleSubmit = async () => {
@@ -63,7 +49,7 @@ window.gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
     setLoading(true);
 
     try {
-      const accessToken = window.gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+      const accessToken = window.googleToken;
 
       const response = await fetch("https://www.googleapis.com/youtube/v3/playlists?part=snippet%2Cstatus", {
         method: "POST",
