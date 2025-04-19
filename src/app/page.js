@@ -20,12 +20,20 @@ export default function Bihag() {
     script.onload = () => {
       window.gapi.load("client:auth2", () => {
         window.gapi.client.init({
-          clientId: CLIENT_ID,
-          scope: "https://www.googleapis.com/auth/youtube"
-        }).then(() => {
-          const authInstance = window.gapi.auth2.getAuthInstance();
-          setIsSignedIn(authInstance.isSignedIn.get());
-          authInstance.isSignedIn.listen(setIsSignedIn);
+  clientId: CLIENT_ID,
+  scope: "https://www.googleapis.com/auth/youtube"
+}).then(() => {
+  const authInstance = window.gapi.auth2.getAuthInstance();
+  const currentUser = authInstance.currentUser.get();
+  const isAuthed = authInstance.isSignedIn.get();
+  setIsSignedIn(isAuthed);
+  if (!isAuthed) {
+    authInstance.signIn().then(() => {
+      setIsSignedIn(authInstance.isSignedIn.get());
+    });
+  }
+  authInstance.isSignedIn.listen(setIsSignedIn);
+});
         });
       });
     };
