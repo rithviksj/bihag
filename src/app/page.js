@@ -1,25 +1,56 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent } from "../components/ui/card";
+
+const CLIENT_ID = "79438826423-tqe7lj8imr83hv7l3fob5307srbs3bcp.apps.googleusercontent.com","project_id":"animated-flare-457003-j7"; // Replace with your actual OAuth client ID
 
 export default function Bihag() {
   const [playlistName, setPlaylistName] = useState("");
   const [parsedList, setParsedList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [playlistLink, setPlaylistLink] = useState(null);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://apis.google.com/js/api.js";
+    script.onload = () => {
+      window.gapi.load("client:auth2", () => {
+        window.gapi.client.init({
+          clientId: CLIENT_ID,
+          scope: "https://www.googleapis.com/auth/youtube"
+        }).then(() => {
+          const authInstance = window.gapi.auth2.getAuthInstance();
+          setIsSignedIn(authInstance.isSignedIn.get());
+          authInstance.isSignedIn.listen(setIsSignedIn);
+        });
+      });
+    };
+    document.body.appendChild(script);
+  }, []);
+
+  const handleLogin = () => {
+    window.gapi.auth2.getAuthInstance().signIn();
+  };
+
+  const handleLogout = () => {
+    window.gapi.auth2.getAuthInstance().signOut();
+  };
 
   const handleSubmit = async () => {
-    if (!parsedList.length || !playlistName) return;
+    if (!parsedList.length || !playlistName || !isSignedIn) return;
     setLoading(true);
 
     try {
+      const accessToken = window.gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+
       const response = await fetch("https://www.googleapis.com/youtube/v3/playlists?part=snippet%2Cstatus", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${window.gapi?.auth2?.getAuthInstance()?.currentUser?.get()?.getAuthResponse().access_token}`,
+          Authorization: `Bearer ${accessToken}`,
           Accept: "application/json",
           "Content-Type": "application/json",
         },
@@ -37,12 +68,11 @@ export default function Bihag() {
       const data = await response.json();
       const playlistId = data.id;
 
-      // limit to 2 songs
       for (let i = 0; i < Math.min(2, parsedList.length); i++) {
         const query = parsedList[i];
         const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&maxResults=1&type=video`, {
           headers: {
-            Authorization: `Bearer ${window.gapi?.auth2?.getAuthInstance()?.currentUser?.get()?.getAuthResponse().access_token}`,
+            Authorization: `Bearer ${accessToken}`,
             Accept: "application/json"
           }
         });
@@ -54,7 +84,7 @@ export default function Bihag() {
           await fetch("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet", {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${window.gapi?.auth2?.getAuthInstance()?.currentUser?.get()?.getAuthResponse().access_token}`,
+              Authorization: `Bearer ${accessToken}`,
               Accept: "application/json",
               "Content-Type": "application/json",
             },
@@ -140,46 +170,54 @@ export default function Bihag() {
   return (
     <div className="max-w-3xl mx-auto px-8 py-14 font-serif">
       <h1 className="text-5xl font-bold text-center mb-4 tracking-tight">Bihag</h1>
-      <p className="text-center text-muted-foreground text-lg mb-12">
+      <p className="text-center text-muted-foreground text-lg mb-6">
         Turn your HTML tracklists into beautiful YouTube playlists 🎶
       </p>
 
-      <Card className="mb-16 shadow-lg border border-gray-200">
-        <CardContent className="space-y-8 pt-8 pb-10 px-6">
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Upload HTML Playlist File</label>
-            <Input type="file" accept=".html" onChange={handleFileUpload} className="py-2 text-base" />
-          </div>
+      {!isSignedIn && (
+        <div className="text-center mb-8">
+          <Button onClick={handleLogin}>Sign in with Google</Button>
+        </div>
+      )}
 
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Playlist Name</label>
-            <Input
-              placeholder="e.g., 2020 Grammy Gold"
-              value={playlistName}
-              onChange={(e) => setPlaylistName(e.target.value)}
-              className="py-2 text-base"
-            />
-          </div>
-
-          <Button onClick={handleSubmit} disabled={loading} className="w-full text-base py-2.5">
-            {loading ? "Crafting your playlist... 🎧" : "Create YouTube Playlist"}
-          </Button>
-
-          {playlistLink && (
-            <div className="text-center mt-6">
-              <p className="text-base">Your playlist is ready!</p>
-              <a
-                href={playlistLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 underline"
-              >
-                View on YouTube
-              </a>
+      {isSignedIn && (
+        <Card className="mb-12 shadow-lg border border-gray-200">
+          <CardContent className="space-y-8 pt-8 pb-10 px-6">
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Upload HTML Playlist File</label>
+              <Input type="file" accept=".html" onChange={handleFileUpload} className="py-2 text-base" />
             </div>
-          )}
-        </CardContent>
-      </Card>
+
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Playlist Name</label>
+              <Input
+                placeholder="e.g., 2020 Grammy Gold"
+                value={playlistName}
+                onChange={(e) => setPlaylistName(e.target.value)}
+                className="py-2 text-base"
+              />
+            </div>
+
+            <Button onClick={handleSubmit} disabled={loading} className="w-full text-base py-2.5">
+              {loading ? "Crafting your playlist... 🎧" : "Create YouTube Playlist"}
+            </Button>
+
+            {playlistLink && (
+              <div className="text-center mt-6">
+                <p className="text-base">Your playlist is ready!</p>
+                <a
+                  href={playlistLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  View on YouTube
+                </a>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {parsedList.length > 0 && (
         <div className="mb-20">
