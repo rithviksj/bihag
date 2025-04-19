@@ -28,8 +28,12 @@ export default function Bihag() {
           const authInstance = window.gapi.auth2.getAuthInstance();
           function updateSignInStatus() {
   const authInstance = window.gapi.auth2.getAuthInstance();
-  const isSigned = authInstance && authInstance.isSignedIn.get();
-  setIsSignedIn(isSigned);
+  if (authInstance) {
+    const user = authInstance.currentUser.get();
+    const isSigned = user && user.isSignedIn();
+    console.log("Sign-in status:", isSigned);
+    setIsSignedIn(isSigned);
+  }
 }
 
 updateSignInStatus();
