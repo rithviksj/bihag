@@ -5,7 +5,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent } from "../components/ui/card";
 
-const CLIENT_ID = "79438826423-8grkihuiaedjn815odj871rv1cj540j3.apps.googleusercontent.com"; // Replace with your actual OAuth client ID
+const CLIENT_ID = "79438826423-8grkihuiaedjn815odj871rv1cj540j3.apps.googleusercontent.com";
 
 export default function Bihag() {
   const [playlistName, setPlaylistName] = useState("");
@@ -35,7 +35,7 @@ export default function Bihag() {
 
         window.googleTokenClient = window.google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
-          scope: 'https://www.googleapis.com/auth/youtube',
+          scope: "https://www.googleapis.com/auth/youtube",
           callback: (tokenResponse) => {
             if (tokenResponse && tokenResponse.access_token) {
               window.googleAccessToken = tokenResponse.access_token;
@@ -43,17 +43,17 @@ export default function Bihag() {
           },
         });
       }
-      }
     };
     document.body.appendChild(script);
   }, []);
 
   const handleLogin = () => {
-  window.google?.accounts.id.prompt();
-};
+    window.google?.accounts.id.prompt();
+  };
 
   const handleLogout = () => {
-    window.google.accounts.id.disableAutoSelect(); setIsSignedIn(false);
+    window.google.accounts.id.disableAutoSelect();
+    setIsSignedIn(false);
   };
 
   const handleSubmit = async () => {
@@ -63,15 +63,16 @@ export default function Bihag() {
 
     try {
       if (!window.googleAccessToken) {
-  await new Promise((resolve) => {
-    window.googleTokenClient.callback = (tokenResponse) => {
-      window.googleAccessToken = tokenResponse.access_token;
-      resolve();
-    };
-    window.googleTokenClient.requestAccessToken();
-  });
-}
-const accessToken = window.googleAccessToken;
+        await new Promise((resolve) => {
+          window.googleTokenClient.callback = (tokenResponse) => {
+            window.googleAccessToken = tokenResponse.access_token;
+            resolve();
+          };
+          window.googleTokenClient.requestAccessToken();
+        });
+      }
+
+      const accessToken = window.googleAccessToken;
 
       const response = await fetch("https://www.googleapis.com/youtube/v3/playlists?part=snippet%2Cstatus", {
         method: "POST",
@@ -86,9 +87,9 @@ const accessToken = window.googleAccessToken;
             description: "Created using Bihag app",
           },
           status: {
-            privacyStatus: "public"
-          }
-        })
+            privacyStatus: "public",
+          },
+        }),
       });
 
       const data = await response.json();
@@ -98,12 +99,15 @@ const accessToken = window.googleAccessToken;
       for (let i = 0; i < Math.min(2, parsedList.length); i++) {
         const query = parsedList[i];
         console.log("Searching YouTube for:", query);
-        const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&maxResults=1&type=video`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            Accept: "application/json"
+        const searchRes = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&maxResults=1&type=video`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              Accept: "application/json",
+            },
           }
-        });
+        );
 
         const searchJson = await searchRes.json();
         console.log("Search result:", searchJson);
@@ -123,20 +127,23 @@ const accessToken = window.googleAccessToken;
                 resourceId: {
                   kind: "youtube#video",
                   videoId,
-                }
-              }
-            })
+                },
+              },
+            }),
           });
           added.push(query);
         }
       }
+
       setPlaylistLink(`https://www.youtube.com/playlist?list=${playlistId}`);
-       catch (error) {
+      setAddedTracks(added);
+    } catch (error) {
       console.error("YouTube playlist creation error:", error);
       alert("There was an issue creating the playlist.");
     }
 
     setLoading(false);
+    console.log("Playlist creation complete");
   };
 
   const parseHTML = (htmlString) => {
@@ -144,19 +151,19 @@ const accessToken = window.googleAccessToken;
     const doc = parser.parseFromString(htmlString, "text/html");
     let tracks = [];
 
-    doc.querySelectorAll("div.tracklist_track_title")?.forEach(div => {
+    doc.querySelectorAll("div.tracklist_track_title")?.forEach((div) => {
       const title = div.textContent.trim();
       if (title) tracks.push(title);
     });
 
-    doc.querySelectorAll("li.o-chart-results-list__item > h3")?.forEach(h3 => {
+    doc.querySelectorAll("li.o-chart-results-list__item > h3")?.forEach((h3) => {
       const title = h3.textContent.trim();
       const artist = h3.nextElementSibling?.textContent.trim() || "";
       if (title) tracks.push(`${artist} - ${title}`.trim());
     });
 
-    doc.querySelectorAll("table")?.forEach(table => {
-      table.querySelectorAll("tr")?.forEach(row => {
+    doc.querySelectorAll("table")?.forEach((table) => {
+      table.querySelectorAll("tr")?.forEach((row) => {
         const cols = row.querySelectorAll("td");
         if (cols.length === 4) {
           const artist = cols[1].textContent.replace("–", "").trim();
@@ -166,7 +173,7 @@ const accessToken = window.googleAccessToken;
       });
     });
 
-    doc.querySelectorAll("ul li")?.forEach(li => {
+    doc.querySelectorAll("ul li")?.forEach((li) => {
       const text = li.textContent;
       if (text.includes("-")) {
         const [title, artist] = text.split("-", 2);
@@ -174,9 +181,9 @@ const accessToken = window.googleAccessToken;
       }
     });
 
-    doc.querySelectorAll("tr[data-track-position]")?.forEach(row => {
+    doc.querySelectorAll("tr[data-track-position]")?.forEach((row) => {
       const artistTags = row.querySelectorAll("td.artist__Aq2S a");
-      const artist = Array.from(artistTags).map(a => a.textContent.trim()).join(", ");
+      const artist = Array.from(artistTags).map((a) => a.textContent.trim()).join(", ");
       const title = row.querySelector("td.trackTitleWithArtist_igX0j span")?.textContent.trim();
       if (artist && title) tracks.push(`${artist} - ${title}`);
     });
@@ -244,7 +251,8 @@ const accessToken = window.googleAccessToken;
                 </a>
               </div>
             )}
-          {addedTracks.length > 0 && (
+
+            {addedTracks.length > 0 && (
               <div className="text-sm mt-6">
                 <p className="font-semibold mb-2">✅ Successfully added tracks:</p>
                 <ul className="list-disc list-inside">
@@ -272,11 +280,7 @@ const accessToken = window.googleAccessToken;
       <div className="text-center text-base text-muted-foreground mb-3">
         💖 Enjoying this tool?
         <br />
-        <a
-          href="https://buymeacoffee.com/yourname"
-          className="text-pink-500 underline"
-          target="_blank"
-        >
+        <a href="https://buymeacoffee.com/yourname" className="text-pink-500 underline" target="_blank">
           Buy me a coffee ☕ or show some love 🌷
         </a>
       </div>
