@@ -5,7 +5,8 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent } from "../components/ui/card";
 
-const CLIENT_ID = "79438826423-tqe7lj8imr83hv7l3fob5307srbs3bcp.apps.googleusercontent.com","project_id":"animated-flare-457003-j7"; // Replace with your actual OAuth client ID
+const CLIENT_ID = "79438826423-tqe7lj8imr83hv7l3fob5307srbs3bcp.apps.googleusercontent.com";
+
 
 export default function Bihag() {
   const [playlistName, setPlaylistName] = useState("");
