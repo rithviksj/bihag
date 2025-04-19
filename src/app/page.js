@@ -12,11 +12,72 @@ export default function Bihag() {
   const [playlistLink, setPlaylistLink] = useState(null);
 
   const handleSubmit = async () => {
+    if (!parsedList.length || !playlistName) return;
     setLoading(true);
-    setTimeout(() => {
-      setPlaylistLink("https://www.youtube.com/playlist?list=FAKE12345");
-      setLoading(false);
-    }, 1500);
+
+    try {
+      const response = await fetch("https://www.googleapis.com/youtube/v3/playlists?part=snippet%2Cstatus", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${window.gapi?.auth2?.getAuthInstance()?.currentUser?.get()?.getAuthResponse().access_token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          snippet: {
+            title: playlistName,
+            description: "Created using Bihag app",
+          },
+          status: {
+            privacyStatus: "public"
+          }
+        })
+      });
+
+      const data = await response.json();
+      const playlistId = data.id;
+
+      // limit to 2 songs
+      for (let i = 0; i < Math.min(2, parsedList.length); i++) {
+        const query = parsedList[i];
+        const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&maxResults=1&type=video`, {
+          headers: {
+            Authorization: `Bearer ${window.gapi?.auth2?.getAuthInstance()?.currentUser?.get()?.getAuthResponse().access_token}`,
+            Accept: "application/json"
+          }
+        });
+
+        const searchJson = await searchRes.json();
+        const videoId = searchJson.items?.[0]?.id?.videoId;
+
+        if (videoId) {
+          await fetch("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${window.gapi?.auth2?.getAuthInstance()?.currentUser?.get()?.getAuthResponse().access_token}`,
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              snippet: {
+                playlistId,
+                resourceId: {
+                  kind: "youtube#video",
+                  videoId,
+                }
+              }
+            })
+          });
+        }
+      }
+
+      setPlaylistLink(`https://www.youtube.com/playlist?list=${playlistId}`);
+    } catch (error) {
+      console.error("YouTube playlist creation error:", error);
+      alert("There was an issue creating the playlist.");
+    }
+
+    setLoading(false);
   };
 
   const parseHTML = (htmlString) => {
@@ -62,7 +123,7 @@ export default function Bihag() {
     });
 
     if (tracks.length) {
-      setParsedList(tracks.slice(0, 2));
+      setParsedList(tracks);
     } else {
       alert("No recognizable tracks found in uploaded HTML.");
     }
