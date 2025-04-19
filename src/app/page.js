@@ -33,10 +33,12 @@ export default function Bihag() {
     document.body.appendChild(script);
   }, []);
 
+  
   const handleLogin = async () => {
   await window.gapi.auth2.getAuthInstance().signIn();
   setIsSignedIn(window.gapi.auth2.getAuthInstance().isSignedIn.get());
 };
+
 
 
   const handleLogout = () => {
