@@ -5,6 +5,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent } from "../components/ui/card";
 import { Textarea } from "../components/ui/textarea";
+import FileUploadParser from "../components/FileUploadParser";
 
 export default function Home() {
   const [playlistName, setPlaylistName] = useState("");
@@ -40,6 +41,8 @@ export default function Home() {
             value={playlistName}
             onChange={(e) => setPlaylistName(e.target.value)}
           />
+          <FileUploadParser onTracksParsed={setTracklist} />
+
           <Textarea
             rows={6}
             placeholder="Paste your tracklist here (e.g., Artist - Title)..."
@@ -67,14 +70,14 @@ export default function Home() {
       </Card>
 
       <div className="text-center text-sm text-muted-foreground">
-        🫶 Willing to donate free hugs to hot people?
+        🫶 Willing to donate ?
         <br />
         <a
           href="https://buymeacoffee.com/yourname"
           className="text-pink-500 underline"
           target="_blank"
         >
-          Buy me a chai latte ☕ or toss a rose 🌹
+          Toss a rose 🌹 / Donate Here 
         </a>
       </div>
 
