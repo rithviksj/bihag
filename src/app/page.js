@@ -129,9 +129,7 @@ const accessToken = window.googleAccessToken;
           added.push(query);
         }
       }
-      setAddedTracks(added);`,
-            Accept: "application/json"
-          }
+      setAddedTracks(added);
         });
 
         const searchJson = await searchRes.json();
