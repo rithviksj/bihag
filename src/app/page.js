@@ -59,6 +59,7 @@ export default function Bihag() {
   const handleSubmit = async () => {
     if (!parsedList.length || !playlistName || !isSignedIn) return;
     setLoading(true);
+    setAddedTracks([]);
 
     try {
       if (!window.googleAccessToken) {
@@ -129,35 +130,8 @@ const accessToken = window.googleAccessToken;
           added.push(query);
         }
       }
-      setAddedTracks(added);
-        });
-
-        const searchJson = await searchRes.json();
-        const videoId = searchJson.items?.[0]?.id?.videoId;
-
-        if (videoId) {
-          await fetch("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              snippet: {
-                playlistId,
-                resourceId: {
-                  kind: "youtube#video",
-                  videoId,
-                }
-              }
-            })
-          });
-        }
-      }
-
       setPlaylistLink(`https://www.youtube.com/playlist?list=${playlistId}`);
-    } catch (error) {
+       catch (error) {
       console.error("YouTube playlist creation error:", error);
       alert("There was an issue creating the playlist.");
     }
