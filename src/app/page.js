@@ -285,7 +285,7 @@ export default function Bihag() {
           >
             Want to Buy me a coffee ☕ ?
           </a>
-          <p>🌍 Share this app with friends !.</p>
+          <p>🌍 Share this app with friends and music lovers.</p>
         </div>
       </div>
     </div>
