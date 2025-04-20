@@ -306,7 +306,7 @@ export default function Bihag() {
             muted
             playsInline
             controls
-            src="/Bihag25.mp4"
+            src="src/Bihag25.mp4"
           />
 
         </div>
