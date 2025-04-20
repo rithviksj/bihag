@@ -207,11 +207,11 @@ export default function Bihag() {
   };
 
   return (
-    <div className="min-h-screen bg-blue-100 text-gray-900 py-16 px-6 space-y-14">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-indigo-100 text-gray-800 py-16 px-6 space-y-14 font-serif">
       <div className="max-w-3xl mx-auto space-y-10">
-        <h1 className="text-5xl font-bold text-center tracking-tight">Bihag</h1>
-        <p className="text-center text-lg leading-relaxed">
-          Turn curated tracklists into elegant YouTube playlists — effortlessly. 🎶
+        <h1 className="text-5xl font-bold text-center tracking-tight drop-shadow-md">Bihag</h1>
+        <p className="text-center text-lg leading-relaxed italic">
+          Turn curated tracklists into elegant YouTube playlists — effortlessly.
         </p>
 
         {!isSignedIn && (
