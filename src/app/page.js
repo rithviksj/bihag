@@ -288,7 +288,7 @@ export default function Bihag() {
         <div className="text-center text-sm text-gray-600 space-y-3">
           <p>💖 Enjoying this tool?</p>
           <a
-            href="https://buymeacoffee.com/yourname"
+            href="https://buymeacoffee.com/rithviksj"
             className="text-pink-600 underline"
             target="_blank"
           >
