@@ -2,18 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Lo-fi rain keyframes */
-@keyframes drizzle {
-  0% {
-    transform: translateY(-10%);
-    opacity: 0.2;
-  }
-  100% {
-    transform: translateY(110vh);
-    opacity: 0;
-  }
-}
-
 body {
-  font-family: 'Inter', sans-serif;
+  @apply bg-gradient-to-br from-blue-100 via-white to-indigo-100 text-gray-800 font-serif;
 }
