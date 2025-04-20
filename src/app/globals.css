@@ -2,12 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Optional: Lo-fi vibes */
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #1a1a1a;
-}
-
 @keyframes drizzle {
   0% {
     transform: translateY(-10%);
