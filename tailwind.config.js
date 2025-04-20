@@ -10,7 +10,23 @@ module.exports = {
     },
   ],
   theme: {
-    extend: {},
+    extend: {
+      animation: {
+        drizzle: "drizzle 6s linear infinite",
+      },
+      keyframes: {
+        drizzle: {
+          "0%": {
+            transform: "translateY(-10%)",
+            opacity: "0.2",
+          },
+          "100%": {
+            transform: "translateY(110vh)",
+            opacity: "0",
+          },
+        },
+      },
+    },
   },
   plugins: [],
 };
