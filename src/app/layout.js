@@ -1,22 +1,17 @@
-import "../styles/globals.css"  // Changed from '@/styles/globals.css'
-import { Inter } from 'next/font/google'
+"use client";
 
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata = {
-  title: 'Bihag',
-  description: 'The App you never knew you needed but always deserved.',
-}
+import "@/styles/globals.css";
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet" />
+        <title>Bihag • Lo-fi Playlist Maker</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body className={`min-h-screen bg-gradient-to-br from-blue-100 via-white to-indigo-100 ${inter.className}`}>
+      <body className="bg-gradient-to-br from-[#dbeafe] via-[#f0f9ff] to-[#e0e7ff] text-gray-800 min-h-screen font-serif">
         {children}
       </body>
     </html>
-  )
+  );
 }
