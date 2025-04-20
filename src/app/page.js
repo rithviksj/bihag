@@ -129,6 +129,10 @@ export default function Bihag() {
       .trim();
   };
 
+  const isTrackLike = (text) => {
+    return text.length > 5 && /[a-zA-Z]/.test(text) && !text.includes(".css") && !text.match(/^{.*}$/);
+  };
+
   const parseHTML = (htmlString) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, "text/html");
@@ -136,13 +140,14 @@ export default function Bihag() {
 
     doc.querySelectorAll("div.tracklist_track_title")?.forEach((div) => {
       const title = div.textContent.trim();
-      if (title) tracks.push(title);
+      if (title && isTrackLike(title)) tracks.push(title);
     });
 
     doc.querySelectorAll("li.o-chart-results-list__item > h3")?.forEach((h3) => {
       const title = h3.textContent.trim();
       const artist = h3.nextElementSibling?.textContent.trim() || "";
-      if (title) tracks.push(`${artist} - ${title}`.trim());
+      const combined = `${artist} - ${title}`.trim();
+      if (title && isTrackLike(combined)) tracks.push(combined);
     });
 
     doc.querySelectorAll("table")?.forEach((table) => {
@@ -151,7 +156,8 @@ export default function Bihag() {
         if (cols.length === 4) {
           const artist = cols[1].textContent.replace("–", "").trim();
           const title = cols[2].textContent.trim();
-          if (artist && title) tracks.push(`${artist} - ${title}`);
+          const combined = `${artist} - ${title}`;
+          if (artist && title && isTrackLike(combined)) tracks.push(combined);
         }
       });
     });
@@ -160,7 +166,8 @@ export default function Bihag() {
       const text = li.textContent;
       if (text.includes("-")) {
         const [title, artist] = text.split("-", 2);
-        if (title && artist) tracks.push(`${artist.trim()} - ${title.trim()}`);
+        const combined = `${artist?.trim()} - ${title?.trim()}`;
+        if (title && artist && isTrackLike(combined)) tracks.push(combined);
       }
     });
 
@@ -168,7 +175,8 @@ export default function Bihag() {
       const artistTags = row.querySelectorAll("td.artist__Aq2S a");
       const artist = Array.from(artistTags).map((a) => a.textContent.trim()).join(", ");
       const title = row.querySelector("td.trackTitleWithArtist_igX0j span")?.textContent.trim();
-      if (artist && title) tracks.push(`${artist} - ${title}`);
+      const combined = `${artist} - ${title}`;
+      if (artist && title && isTrackLike(combined)) tracks.push(combined);
     });
 
     if (tracks.length) {
