@@ -1,11 +1,11 @@
-export function Card({ children, className = "" }) {
+export function Card({ className = "", children }) {
   return (
-    <div className={`rounded-xl border bg-white/80 backdrop-blur-sm p-6 shadow-xl ${className}`}>
+    <div className={`rounded-xl border border-gray-200 ${className}`}>
       {children}
     </div>
   );
 }
 
-export function CardContent({ children, className = "" }) {
-  return <div className={`space-y-6 ${className}`}>{children}</div>;
+export function CardContent({ className = "", children }) {
+  return <div className={`p-4 ${className}`}>{children}</div>;
 }

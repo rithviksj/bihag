@@ -1,5 +1,7 @@
 "use client";
 
+import "@/components/styles/globals.css";
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -207,7 +209,7 @@ export default function Bihag() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-indigo-100 text-gray-800 py-16 px-6 space-y-14 font-serif">
+    <main className="min-h-screen bg-gradient-to-br from-[#dbeafe] via-[#f0f9ff] to-[#e0e7ff] text-gray-800 py-16 px-6 space-y-14 font-serif">
       <div className="max-w-3xl mx-auto space-y-10">
         <h1 className="text-5xl font-bold text-center tracking-tight drop-shadow-md">Bihag</h1>
         <p className="text-center text-lg leading-relaxed italic">

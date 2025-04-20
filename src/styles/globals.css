@@ -2,22 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply antialiased;
-  }
+/* Custom global font */
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  line-height: 1.6;
 }
 
-@layer components {
-  .input-base {
-    @apply border border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent;
-  }
-  
-  .button-base {
-    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 ease-in-out;
-  }
-  
-  .card-base {
-    @apply bg-white rounded-lg shadow-lg p-6;
-  }
+a {
+  transition: all 0.2s ease-in-out;
+}
+
+a:hover {
+  color: #3b82f6;
+  text-decoration: underline;
 }
