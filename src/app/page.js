@@ -179,88 +179,86 @@ export default function Bihag() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-12 text-white backdrop-blur-md bg-white/10 rounded-xl shadow-xl">
-      <h1 className="text-5xl font-bold text-center mb-4 tracking-tight drop-shadow-xl">Bihag</h1>
-      <p className="text-center text-lg mb-6 italic opacity-90">
-        Turn curated tracklists into elegant YouTube playlists — effortlessly. 🎶
-      </p>
+    <div className="min-h-screen bg-blue-100 text-gray-900 py-16 px-6 space-y-10">
+      <div className="max-w-3xl mx-auto space-y-8">
+        <h1 className="text-5xl font-bold text-center tracking-tight">Bihag</h1>
+        <p className="text-center text-lg leading-relaxed">
+          Turn curated tracklists into elegant YouTube playlists — effortlessly. 🎶
+        </p>
 
-      {!isSignedIn && (
-        <div className="text-center mb-8">
-          <Button onClick={handleLogin}>Sign in with Google</Button>
-        </div>
-      )}
+        {!isSignedIn && (
+          <div className="text-center">
+            <Button onClick={handleLogin}>Sign in with Google</Button>
+          </div>
+        )}
 
-      {isSignedIn && (
-        <Card className="mb-12 shadow-lg border border-gray-200/30 bg-white/10">
-          <CardContent className="space-y-8 pt-8 pb-10 px-6">
-            <div className="space-y-3">
-              <label className="text-sm font-medium">Upload HTML Playlist File</label>
-              <Input type="file" accept=".html" onChange={handleFileUpload} className="py-2 text-base bg-white text-black" />
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-sm font-medium">Playlist Name</label>
-              <Input
-                placeholder="e.g., 2020 Grammy Gold"
-                value={playlistName}
-                onChange={(e) => setPlaylistName(e.target.value)}
-                className="py-2 text-base bg-white text-black"
-              />
-            </div>
-
-            <Button onClick={handleSubmit} disabled={loading} className="w-full text-base py-2.5">
-              {loading ? "Crafting your playlist... 🎧" : "Create YouTube Playlist"}
-            </Button>
-
-            {playlistLink && (
-              <div className="text-center mt-6">
-                <p className="text-base">Your playlist is ready!</p>
-                <a href={playlistLink} target="_blank" rel="noopener noreferrer" className="text-blue-300 underline">
-                  View on YouTube
-                </a>
+        {isSignedIn && (
+          <Card className="bg-white shadow-xl">
+            <CardContent className="space-y-6 pt-6 pb-8 px-6">
+              <div className="space-y-3">
+                <label className="block text-sm font-medium">Upload HTML Playlist File</label>
+                <Input type="file" accept=".html" onChange={handleFileUpload} className="py-2 text-base bg-gray-100 text-black" />
               </div>
-            )}
 
-            {addedTracks.length > 0 && (
-              <div className="text-sm mt-6">
-                <p className="font-semibold mb-2">✅ Successfully added tracks:</p>
-                <ul className="list-disc list-inside space-y-1">
-                  {addedTracks.map((track, i) => (
-                    <li key={i}>{track}</li>
-                  ))}
-                </ul>
+              <div className="space-y-3">
+                <label className="block text-sm font-medium">Playlist Name</label>
+                <Input
+                  placeholder="e.g., 2020 Grammy Gold"
+                  value={playlistName}
+                  onChange={(e) => setPlaylistName(e.target.value)}
+                  className="py-2 text-base bg-gray-100 text-black"
+                />
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
 
-      {parsedList.length > 0 && (
-        <div className="mb-20">
-          <h2 className="text-2xl font-semibold mb-4">📃 Parsed Tracklist</h2>
-          <ul className="list-disc list-inside space-y-2 text-base">
-            {parsedList.map((track, i) => (
-              <li key={i}>{track}</li>
-            ))}
-          </ul>
+              <Button onClick={handleSubmit} disabled={loading} className="w-full text-base py-2.5">
+                {loading ? "Crafting your playlist... 🎧" : "Create YouTube Playlist"}
+              </Button>
+
+              {playlistLink && (
+                <div className="text-center mt-6">
+                  <p className="text-base">Your playlist is ready!</p>
+                  <a href={playlistLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                    View on YouTube
+                  </a>
+                </div>
+              )}
+
+              {addedTracks.length > 0 && (
+                <div className="text-sm mt-6 space-y-1">
+                  <p className="font-semibold">✅ Successfully added tracks:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {addedTracks.map((track, i) => (
+                      <li key={i}>{track}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {parsedList.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold">📃 Parsed Tracklist</h2>
+            <ul className="list-disc list-inside space-y-2 text-base">
+              {parsedList.map((track, i) => (
+                <li key={i}>{track}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="text-center text-sm text-gray-600 space-y-2">
+          <p>💖 Enjoying this tool?</p>
+          <a
+            href="https://buymeacoffee.com/yourname"
+            className="text-pink-600 underline"
+            target="_blank"
+          >
+            Buy me a coffee ☕ or show some love 🌷
+          </a>
+          <p>🌍 Share this app with friends and music lovers — let’s make the internet sound better.</p>
         </div>
-      )}
-
-      <div className="text-center text-base text-white/80 mb-3">
-        💖 Enjoying this tool?
-        <br />
-        <a
-          href="https://buymeacoffee.com/yourname"
-          className="text-pink-300 underline"
-          target="_blank"
-        >
-          Buy me a coffee ☕ or show some love 🌷
-        </a>
-      </div>
-
-      <div className="text-center text-sm text-white/70">
-        🌍 Share this app with friends and music lovers — let’s make the internet sound better.
       </div>
     </div>
   );
