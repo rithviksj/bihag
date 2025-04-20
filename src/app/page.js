@@ -302,7 +302,7 @@ export default function Bihag() {
         <div className="mt-14 text-center space-y-4">
           <h3 className="text-xl font-semibold">🎥 Discover how it works</h3>
           <video
-            style={{ width: "50%", maxWidth: "400px" }}
+            style={{ width: "60%", maxWidth: "700px" }}
             className="mx-auto rounded-lg shadow-md"
             autoPlay
             loop
