@@ -31,7 +31,7 @@ export default function Bihag() {
           },
         });
 
-        window.google.accounts.id.prompt();
+        
 
         window.googleTokenClient = window.google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
