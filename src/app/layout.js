@@ -8,9 +8,24 @@ export default function RootLayout({ children }) {
       <head />
       <body className="relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
-          {[...Array(20)].map((_, i) => (
-            <span
-              key={i}
+          {[...Array(20)].map((_, i) => {
+            const randomLeft = Math.floor(Math.random() * 100);
+            const randomDelay = (Math.random() * 8).toFixed(2);
+            return (
+              <span
+                key={i}
+                className="absolute text-white opacity-30 text-xl"
+                style={{
+                  left: `${randomLeft}%`,
+                  top: "-2rem",
+                  animation: `drizzle 6s linear infinite`,
+                  animationDelay: `${randomDelay}s`
+                }}
+              >
+                🎵
+              </span>
+            );
+          })}
               className="absolute text-white opacity-30 text-xl"
               style={{
                 left: `${Math.random() * 100}%`,
