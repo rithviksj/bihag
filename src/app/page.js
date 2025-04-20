@@ -283,9 +283,9 @@ export default function Bihag() {
             className="text-pink-600 underline"
             target="_blank"
           >
-            Buy me a coffee ☕ or show some love 🌷
+            Want to Buy me a coffee ☕ ?
           </a>
-          <p>🌍 Share this app with friends and music lovers — let’s make the internet sound better.</p>
+          <p>🌍 Share this app with friends !.</p>
         </div>
       </div>
     </div>
