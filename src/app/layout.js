@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
               className="absolute animate-[drizzle_6s_linear_infinite] text-white opacity-30 text-xl"
               style={{
                 left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 6}s`
+                animationDelay: `${Math.random() * 8}s`
               }}
             >
               🎵
