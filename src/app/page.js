@@ -296,6 +296,20 @@ export default function Bihag() {
           </a>
           <p>🌍 Share this app with friends and music lovers.</p>
         </div>
+
+        <div className="mt-14 text-center space-y-4">
+          <h3 className="text-xl font-semibold">🎥 Discover how it works</h3>
+          <video
+            className="mx-auto w-full max-w-2xl rounded-lg shadow-md"
+            autoPlay
+            loop
+            muted
+            playsInline
+            controls
+            src="/Bihag25.mp4"
+          />
+
+        </div>
       </div>
     </main>
   );
