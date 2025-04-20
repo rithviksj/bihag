@@ -1,7 +1,6 @@
 "use client";
 
-import "../../components/styles/globals.css";
-
+import "../components/styles/globals.css";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
