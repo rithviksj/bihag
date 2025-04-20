@@ -121,6 +121,14 @@ export default function Bihag() {
     setLoading(false);
   };
 
+  const normalizeText = (text) => {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
   const parseHTML = (htmlString) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, "text/html");
@@ -164,7 +172,12 @@ export default function Bihag() {
     });
 
     if (tracks.length) {
-      setParsedList(tracks);
+      const normalized = new Map();
+      tracks.forEach((t) => {
+        const norm = normalizeText(t);
+        if (!normalized.has(norm)) normalized.set(norm, t);
+      });
+      setParsedList(Array.from(normalized.values()));
     } else {
       alert("No recognizable tracks found in uploaded HTML.");
     }
