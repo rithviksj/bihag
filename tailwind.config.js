@@ -5,14 +5,16 @@ module.exports = {
     "./app/**/*.{js,ts,jsx,tsx}",
   ],
   safelist: [
-    {
-      pattern: /bg-\[url.*\]/, // Allow custom background image utilities
-    },
+    { pattern: /bg-gradient-to-.*/ },
+    { pattern: /from-\[#.*\]/ },
+    { pattern: /via-\[#.*\]/ },
+    { pattern: /to-\[#.*\]/ },
+    { pattern: /bg-\[url.*\]/ },
   ],
   theme: {
     extend: {
       animation: {
-        drizzle: "drizzle 6s linear infinite", // Define the drizzle animation shortcut
+        drizzle: "drizzle 6s linear infinite",
       },
       keyframes: {
         drizzle: {
