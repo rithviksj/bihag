@@ -10,6 +10,10 @@ module.exports = {
     { pattern: /via-\[#.*\]/ },
     { pattern: /to-\[#.*\]/ },
     { pattern: /bg-\[url.*\]/ },
+    { pattern: /bg-gradient-to-.*/ },
+    { pattern: /from-blue-.*/ },
+    { pattern: /via-blue-.*/ },
+    { pattern: /to-blue-.*/ },
   ],
   theme: {
     extend: {
