@@ -1,6 +1,5 @@
 "use client";
 
-
 import "@/styles/globals.css";
 
 import React, { useEffect, useState } from "react";
@@ -9,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 
 const CLIENT_ID = "79438826423-8grkihuiaedjn815odj871rv1cj540j3.apps.googleusercontent.com";
-
 
 export default function Bihag() {
   const [playlistName, setPlaylistName] = useState("");
@@ -272,6 +270,13 @@ export default function Bihag() {
         {parsedList.length > 0 && (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold">📃 Parsed Tracklist</h2>
+
+            {parsedList.length > 10 && (
+              <p className="text-sm italic text-red-600">
+                Only the first 10 tracks will be added to the YouTube playlist.
+              </p>
+            )}
+
             <ul className="list-disc list-inside space-y-3 text-base">
               {parsedList.map((track, i) => (
                 <li key={i}>{track}</li>
