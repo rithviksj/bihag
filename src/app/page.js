@@ -14,6 +14,7 @@ export default function Bihag() {
   const [playlistLink, setPlaylistLink] = useState(null);
   const [addedTracks, setAddedTracks] = useState([]);
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [accessToken, setAccessToken] = useState(null);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -22,23 +23,13 @@ export default function Bihag() {
     script.defer = true;
     script.onload = () => {
       if (window.google) {
-        window.google.accounts.id.initialize({
-          client_id: CLIENT_ID,
-          callback: (response) => {
-            if (response.credential) {
-              setIsSignedIn(true);
-            }
-          },
-        });
-
-        
-
         window.googleTokenClient = window.google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
           scope: "https://www.googleapis.com/auth/youtube",
           callback: (tokenResponse) => {
             if (tokenResponse && tokenResponse.access_token) {
-              window.googleAccessToken = tokenResponse.access_token;
+              setAccessToken(tokenResponse.access_token);
+              setIsSignedIn(true);
             }
           },
         });
@@ -48,33 +39,20 @@ export default function Bihag() {
   }, []);
 
   const handleLogin = () => {
-    window.google?.accounts.id.prompt();
-  };
-
-  const handleLogout = () => {
-    window.google.accounts.id.disableAutoSelect();
-    setIsSignedIn(false);
+    if (window.googleTokenClient) {
+      window.googleTokenClient.requestAccessToken();
+    } else {
+      alert("Google sign-in not ready. Please refresh and try again.");
+    }
   };
 
   const handleSubmit = async () => {
-    if (!parsedList.length || !playlistName || !isSignedIn) return;
+    if (!parsedList.length || !playlistName || !accessToken) return;
     setLoading(true);
     setAddedTracks([]);
 
     try {
-      if (!window.googleAccessToken) {
-        await new Promise((resolve) => {
-          window.googleTokenClient.callback = (tokenResponse) => {
-            window.googleAccessToken = tokenResponse.access_token;
-            resolve();
-          };
-          window.googleTokenClient.requestAccessToken();
-        });
-      }
-
-      const accessToken = window.googleAccessToken;
-
-      const response = await fetch("https://www.googleapis.com/youtube/v3/playlists?part=snippet%2Cstatus", {
+      const createRes = await fetch("https://www.googleapis.com/youtube/v3/playlists?part=snippet%2Cstatus", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -84,7 +62,7 @@ export default function Bihag() {
         body: JSON.stringify({
           snippet: {
             title: playlistName,
-            description: "Created using Bihag app",
+            description: "Created using Bihag 🎶",
           },
           status: {
             privacyStatus: "public",
@@ -92,10 +70,10 @@ export default function Bihag() {
         }),
       });
 
-      const data = await response.json();
+      const data = await createRes.json();
       const playlistId = data.id;
-
       const added = [];
+
       for (let i = 0; i < Math.min(2, parsedList.length); i++) {
         const query = parsedList[i];
         const searchRes = await fetch(
@@ -135,9 +113,9 @@ export default function Bihag() {
 
       setPlaylistLink(`https://www.youtube.com/playlist?list=${playlistId}`);
       setAddedTracks(added);
-    } catch (error) {
-      console.error("YouTube playlist creation error:", error);
-      alert("There was an issue creating the playlist.");
+    } catch (err) {
+      console.error(err);
+      alert("Error creating playlist or adding videos.");
     }
 
     setLoading(false);
@@ -201,95 +179,88 @@ export default function Bihag() {
   };
 
   return (
-    <div className="min-h-screen bg-[url('https://images.unsplash.com/photo-1604014238647-a9e02d843041?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center text-white px-4 py-14">
-      <div className="backdrop-blur-sm bg-black/30 p-10 rounded-xl max-w-3xl mx-auto">
-        <h1 className="text-5xl font-bold text-center mb-4 tracking-tight drop-shadow-xl animate-pulse">Bihag</h1>
-        <p className="text-center text-lg mb-6 italic opacity-90">
-          Lo-fi powered playlist magic. Upload your vibe → drop a YouTube playlist 🎶
-        </p>
+    <div className="max-w-3xl mx-auto px-6 py-12 text-white">
+      <h1 className="text-5xl font-bold text-center mb-4 tracking-tight drop-shadow-xl">Bihag</h1>
+      <p className="text-center text-lg mb-6 italic opacity-90">
+        Lo-fi powered playlist magic. Upload your vibe → drop a YouTube playlist 🎶
+      </p>
 
-        {!isSignedIn && (
-          <div className="text-center mb-8">
-            <Button onClick={handleLogin}>Sign in with Google</Button>
-          </div>
-        )}
-
-        {isSignedIn && (
-          <Card className="mb-12 shadow-lg border border-gray-200/30 bg-white/10">
-            <CardContent className="space-y-8 pt-8 pb-10 px-6">
-              <div className="space-y-3">
-                <label className="text-sm font-medium">Upload HTML Playlist File</label>
-                <Input type="file" accept=".html" onChange={handleFileUpload} className="py-2 text-base bg-white text-black" />
-              </div>
-
-              <div className="space-y-3">
-                <label className="text-sm font-medium">Playlist Name</label>
-                <Input
-                  placeholder="e.g., 2020 Grammy Gold"
-                  value={playlistName}
-                  onChange={(e) => setPlaylistName(e.target.value)}
-                  className="py-2 text-base bg-white text-black"
-                />
-              </div>
-
-              <Button onClick={handleSubmit} disabled={loading} className="w-full text-base py-2.5">
-                {loading ? "Crafting your playlist... 🎧" : "Create YouTube Playlist"}
-              </Button>
-
-              {playlistLink && (
-                <div className="text-center mt-6">
-                  <p className="text-base">Your playlist is ready!</p>
-                  <a
-                    href={playlistLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-300 underline"
-                  >
-                    View on YouTube
-                  </a>
-                </div>
-              )}
-
-              {addedTracks.length > 0 && (
-                <div className="text-sm mt-6">
-                  <p className="font-semibold mb-2">✅ Successfully added tracks:</p>
-                  <ul className="list-disc list-inside">
-                    {addedTracks.map((track, i) => (
-                      <li key={i}>{track}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {parsedList.length > 0 && (
-          <div className="mb-20">
-            <h2 className="text-2xl font-semibold mb-4">📃 Parsed Tracklist</h2>
-            <ul className="list-disc list-inside space-y-2 text-base">
-              {parsedList.map((track, i) => (
-                <li key={i}>{track}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <div className="text-center text-base text-white/80 mb-3">
-          💖 Enjoying this tool?
-          <br />
-          <a
-            href="https://buymeacoffee.com/yourname"
-            className="text-pink-300 underline"
-            target="_blank"
-          >
-            Buy me a coffee ☕ or show some love 🌷
-          </a>
+      {!isSignedIn && (
+        <div className="text-center mb-8">
+          <Button onClick={handleLogin}>Sign in with Google</Button>
         </div>
+      )}
 
-        <div className="text-center text-sm text-white/70">
-          🌍 Share this app with friends and music lovers — let’s make the internet sound better.
+      {isSignedIn && (
+        <Card className="mb-12 shadow-lg border border-gray-200/30 bg-white/10">
+          <CardContent className="space-y-8 pt-8 pb-10 px-6">
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Upload HTML Playlist File</label>
+              <Input type="file" accept=".html" onChange={handleFileUpload} className="py-2 text-base bg-white text-black" />
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Playlist Name</label>
+              <Input
+                placeholder="e.g., 2020 Grammy Gold"
+                value={playlistName}
+                onChange={(e) => setPlaylistName(e.target.value)}
+                className="py-2 text-base bg-white text-black"
+              />
+            </div>
+
+            <Button onClick={handleSubmit} disabled={loading} className="w-full text-base py-2.5">
+              {loading ? "Crafting your playlist... 🎧" : "Create YouTube Playlist"}
+            </Button>
+
+            {playlistLink && (
+              <div className="text-center mt-6">
+                <p className="text-base">Your playlist is ready!</p>
+                <a href={playlistLink} target="_blank" rel="noopener noreferrer" className="text-blue-300 underline">
+                  View on YouTube
+                </a>
+              </div>
+            )}
+
+            {addedTracks.length > 0 && (
+              <div className="text-sm mt-6">
+                <p className="font-semibold mb-2">✅ Successfully added tracks:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  {addedTracks.map((track, i) => (
+                    <li key={i}>{track}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {parsedList.length > 0 && (
+        <div className="mb-20">
+          <h2 className="text-2xl font-semibold mb-4">📃 Parsed Tracklist</h2>
+          <ul className="list-disc list-inside space-y-2 text-base">
+            {parsedList.map((track, i) => (
+              <li key={i}>{track}</li>
+            ))}
+          </ul>
         </div>
+      )}
+
+      <div className="text-center text-base text-white/80 mb-3">
+        💖 Enjoying this tool?
+        <br />
+        <a
+          href="https://buymeacoffee.com/yourname"
+          className="text-pink-300 underline"
+          target="_blank"
+        >
+          Buy me a coffee ☕ or show some love 🌷
+        </a>
+      </div>
+
+      <div className="text-center text-sm text-white/70">
+        🌍 Share this app with friends and music lovers — let’s make the internet sound better.
       </div>
     </div>
   );

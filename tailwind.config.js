@@ -1,18 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{js,ts,jsx,tsx}", // adjust this based on your project structure
+    "./src/**/*.{js,ts,jsx,tsx}",
     "./app/**/*.{js,ts,jsx,tsx}",
   ],
   safelist: [
     {
-      pattern: /bg-\[url.*\]/, // ensures your Unsplash background survives purge
+      pattern: /bg-\[url.*\]/, // Allow custom background image utilities
     },
   ],
   theme: {
     extend: {
       animation: {
-        drizzle: "drizzle 6s linear infinite",
+        drizzle: "drizzle 6s linear infinite", // Define the drizzle animation shortcut
       },
       keyframes: {
         drizzle: {
