@@ -179,10 +179,10 @@ export default function Bihag() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-12 text-white">
+    <div className="max-w-3xl mx-auto px-6 py-12 text-white backdrop-blur-md bg-white/10 rounded-xl shadow-xl">
       <h1 className="text-5xl font-bold text-center mb-4 tracking-tight drop-shadow-xl">Bihag</h1>
       <p className="text-center text-lg mb-6 italic opacity-90">
-        Lo-fi powered playlist magic. Upload your vibe → drop a YouTube playlist 🎶
+        Turn curated tracklists into elegant YouTube playlists — effortlessly. 🎶
       </p>
 
       {!isSignedIn && (
