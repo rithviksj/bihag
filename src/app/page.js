@@ -214,6 +214,8 @@ export default function Bihag() {
         <h1 className="text-5xl font-bold text-center tracking-tight drop-shadow-md">Bihag</h1>
         <p className="text-center text-lg leading-relaxed italic">
           Turn curated tracklists into elegant YouTube playlists — effortlessly.
+          Bihag - the App you never knew you needed but always deserved.
+
         </p>
 
         {!isSignedIn && (
@@ -299,18 +301,15 @@ export default function Bihag() {
 
         <div className="mt-14 text-center space-y-4">
           <h3 className="text-xl font-semibold">🎥 Discover how it works</h3>
-        <video
-          className="mx-auto w-full max-w-2xl rounded-lg shadow-md"
-          autoPlay
-          loop
-          muted
-          playsInline
-          controls
-          src="/Bihag25.mp4"
-        />
-
-
-
+          <video
+            className="mx-auto w-full max-w-xl rounded-lg shadow-md"
+            autoPlay
+            loop
+            muted
+            playsInline
+            controls
+            src="/Bihag25.mp4"
+          />
         </div>
       </div>
     </main>
