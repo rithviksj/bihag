@@ -130,7 +130,14 @@ export default function Bihag() {
   };
 
   const isTrackLike = (text) => {
-    return text.length > 5 && /[a-zA-Z]/.test(text) && !text.includes(".css") && !text.match(/^{.*}$/);
+    return (
+      text.length > 5 &&
+      /[a-zA-Z]/.test(text) &&
+      !text.includes(".css") &&
+      !text.match(/^{.*}$/) &&
+      !text.includes("menu") &&
+      !text.match(/^End Charts|Chart Beat|Features|Noticias|Get Up|Honda Music/i)
+    );
   };
 
   const parseHTML = (htmlString) => {
@@ -226,8 +233,7 @@ export default function Bihag() {
                 <Input
                   placeholder="e.g., 2020 Grammy Gold"
                   value={playlistName}
-                  onChange={(e) => setPlaylistName(e.target.value)
-                  }
+                  onChange={(e) => setPlaylistName(e.target.value)}
                   className="py-2 text-base bg-gray-100 text-black"
                 />
               </div>
