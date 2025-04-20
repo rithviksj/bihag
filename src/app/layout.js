@@ -26,15 +26,6 @@ export default function RootLayout({ children }) {
               </span>
             );
           })}
-              className="absolute text-white opacity-30 text-xl"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animation: `drizzle 6s linear infinite`, animationDelay: `${Math.random() * 8}s`
-              }}
-            >
-              🎵
-            </span>
-          ))}
         </div>
         <div className="relative z-10">
           {children}
