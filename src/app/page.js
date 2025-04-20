@@ -1,9 +1,18 @@
 "use client";
 
+
+
+//import React, { useEffect, useState } from "react";
+//import { Button } from "../components/ui/button";
+//import { Input } from "../components/ui/input";
+//import { Card, CardContent } from "../components/ui/card";
+
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+
 
 const CLIENT_ID = "79438826423-8grkihuiaedjn815odj871rv1cj540j3.apps.googleusercontent.com";
 
@@ -74,7 +83,7 @@ export default function Bihag() {
       const playlistId = data.id;
       const added = [];
 
-      for (let i = 0; i < Math.min(10, parsedList.length); i++) {
+      for (let i = 0; i < Math.min(2, parsedList.length); i++) {
         const query = parsedList[i];
         const searchRes = await fetch(
           `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&maxResults=1&type=video`,
@@ -207,7 +216,7 @@ export default function Bihag() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-indigo-100 text-gray-800 py-16 px-6 space-y-14 font-serif">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-indigo-100 text-gray-800 py-16 px-6 space-y-14 font-serif">
       <div className="max-w-3xl mx-auto space-y-10">
         <h1 className="text-5xl font-bold text-center tracking-tight drop-shadow-md">Bihag</h1>
         <p className="text-center text-lg leading-relaxed italic">
@@ -259,7 +268,7 @@ export default function Bihag() {
                       <li key={i}>{track}</li>
                     ))}
                   </ul>
-                </div>
+                </idv>
               )}
             </CardContent>
           </Card>
@@ -288,6 +297,6 @@ export default function Bihag() {
           <p>🌍 Share this app with friends and music lovers.</p>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
