@@ -237,20 +237,20 @@ export default function Bihag() {
                   setLoading(true);
                   setTimeout(() => {
                     setParsedList([
-                      "Agar Tum Saath Ho",
-                      "Darkhaast",
-                      "Tumhe Kitna Pyaar Karte",
-                      "Hai Dil Ye Mera",
-                      "Mast Magan",
-                      "Roke Na Ruke Naina",
-                      "Soch Na Sake",
-                      "Tose Naina",
-                      "Duaa"
-                    ]);
+  "Arijit Singh - Agar Tum Saath Ho",
+  "Arijit Singh - Darkhaast",
+  "Arijit Singh - Tumhe Kitna Pyaar Karte",
+  "Arijit Singh - Hai Dil Ye Mera",
+  "Arijit Singh - Mast Magan",
+  "Arijit Singh - Roke Na Ruke Naina",
+  "Arijit Singh - Soch Na Sake",
+  "Arijit Singh - Tose Naina",
+  "Arijit Singh - Duaa"
+]);
                     setLoading(false);
                   }, 1500);
                 }} className="py-2 text-base bg-gray-100 text-black" />
-                <p className="text-blue-600 text-sm">📡 Calling ChatGPT to analyze the uploaded file…</p>
+                {loading && <p className="text-blue-600 text-sm">📡 Calling ChatGPT to analyze the uploaded file…</p>}
               </div>
 
 
