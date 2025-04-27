@@ -1,4 +1,8 @@
+'use server';
+
 import { OpenAI } from "openai";
+
+export const dynamic = 'force-dynamic'; // Tell Next.js it's server-only, no static optimization
 
 export const POST = async (req) => {
   const formData = await req.formData();
@@ -24,10 +28,10 @@ ${htmlContent}
     temperature: 0.4,
   });
 
-  const result = completion.choices[0].message.content.trim().split("\\n");
+  const result = completion.choices[0].message.content.trim().split("\n");
 
   return new Response(
-    JSON.stringify({ tracks: result }), 
+    JSON.stringify({ tracks: result }),
     {
       headers: { "Content-Type": "application/json" },
       status: 200,
