@@ -48,32 +48,6 @@ export default function Bihag() {
     }
   };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('htmlFile', file);
-
-    setLoading(true);
-    setParsedList([]);
-
-    try {
-      const res = await fetch('/api/extract', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await res.json();
-      setParsedList(data.tracks || []);
-    } catch (error) {
-      console.error("Error extracting playlist:", error);
-      alert("Failed to parse playlist. Please try again.");
-    }
-
-    setLoading(false);
-  };
-
   const handleSubmit = async () => {
     if (!parsedList.length || !playlistName || !accessToken) return;
     setLoading(true);
@@ -149,6 +123,91 @@ export default function Bihag() {
     setLoading(false);
   };
 
+  const normalizeText = (text) => {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
+  const isTrackLike = (text) => {
+    return (
+      text.length > 5 &&
+      /[a-zA-Z]/.test(text) &&
+      !text.includes(".css") &&
+      !text.match(/^{.*}$/) &&
+      !text.includes("menu") &&
+      !text.match(/^End Charts|Chart Beat|Features|Noticias|Get Up|Honda Music/i)
+    );
+  };
+
+  const parseHTML = (htmlString) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, "text/html");
+    let tracks = [];
+
+    doc.querySelectorAll("div.tracklist_track_title")?.forEach((div) => {
+      const title = div.textContent.trim();
+      if (title && isTrackLike(title)) tracks.push(title);
+    });
+
+    doc.querySelectorAll("li.o-chart-results-list__item > h3")?.forEach((h3) => {
+      const title = h3.textContent.trim();
+      const artist = h3.nextElementSibling?.textContent.trim() || "";
+      const combined = `${artist} - ${title}`.trim();
+      if (title && isTrackLike(combined)) tracks.push(combined);
+    });
+
+    doc.querySelectorAll("table")?.forEach((table) => {
+      table.querySelectorAll("tr")?.forEach((row) => {
+        const cols = row.querySelectorAll("td");
+        if (cols.length === 4) {
+          const artist = cols[1].textContent.replace("–", "").trim();
+          const title = cols[2].textContent.trim();
+          const combined = `${artist} - ${title}`;
+          if (artist && title && isTrackLike(combined)) tracks.push(combined);
+        }
+      });
+    });
+
+    doc.querySelectorAll("ul li")?.forEach((li) => {
+      const text = li.textContent;
+      if (text.includes("-")) {
+        const [title, artist] = text.split("-", 2);
+        const combined = `${artist?.trim()} - ${title?.trim()}`;
+        if (title && artist && isTrackLike(combined)) tracks.push(combined);
+      }
+    });
+
+    doc.querySelectorAll("tr[data-track-position]")?.forEach((row) => {
+      const artistTags = row.querySelectorAll("td.artist__Aq2S a");
+      const artist = Array.from(artistTags).map((a) => a.textContent.trim()).join(", ");
+      const title = row.querySelector("td.trackTitleWithArtist_igX0j span")?.textContent.trim();
+      const combined = `${artist} - ${title}`;
+      if (artist && title && isTrackLike(combined)) tracks.push(combined);
+    });
+
+    if (tracks.length) {
+      const normalized = new Map();
+      tracks.forEach((t) => {
+        const norm = normalizeText(t);
+        if (!normalized.has(norm)) normalized.set(norm, t);
+      });
+      setParsedList(Array.from(normalized.values()));
+    } else {
+      alert("No recognizable tracks found in uploaded HTML.");
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => parseHTML(reader.result);
+    reader.readAsText(file);
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#dbeafe] via-[#f0f9ff] to-[#e0e7ff] text-gray-800 py-16 px-6 space-y-14 font-serif">
       <div className="max-w-3xl mx-auto space-y-10">
@@ -156,6 +215,7 @@ export default function Bihag() {
         <p className="text-center text-lg leading-relaxed italic">
           Turn curated tracklists into elegant YouTube playlists — effortlessly.
           Bihag - the App you never knew you needed but always deserved.
+
         </p>
 
         {!isSignedIn && (
@@ -169,8 +229,7 @@ export default function Bihag() {
             <CardContent className="space-y-8 pt-8 pb-10 px-6">
               <div className="space-y-4">
                 <label className="block text-sm font-medium">Upload HTML Playlist File</label>
-                <Input type="file" accept=".html" onChange={handleFileChange} className="py-2 text-base bg-gray-100 text-black" />
-                {loading && <p className="text-blue-600 text-sm">📡 Calling ChatGPT to analyze the uploaded file…</p>}
+                <Input type="file" accept=".html" onChange={handleFileUpload} className="py-2 text-base bg-gray-100 text-black" />
               </div>
 
               <div className="space-y-4">
@@ -230,7 +289,11 @@ export default function Bihag() {
 
         <div className="text-center text-sm text-gray-600 space-y-3">
           <p>💖 Enjoying this tool?</p>
-          <a href="https://buymeacoffee.com/rithviksj" className="text-pink-600 underline" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://buymeacoffee.com/rithviksj"
+            className="text-pink-600 underline"
+            target="_blank"
+          >
             Want to Buy me a coffee ☕ ?
           </a>
           <p>🌍 Share this app with friends and music lovers.</p>
