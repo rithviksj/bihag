@@ -160,4 +160,96 @@ export default function Bihag() {
 
         {!isSignedIn && (
           <div className="text-center">
-            <Button onClick={handleLogin}>Sign in
+            <Button onClick={handleLogin}>Sign in with Google</Button>
+          </div>
+        )}
+
+        {isSignedIn && (
+          <Card className="bg-white shadow-xl">
+            <CardContent className="space-y-8 pt-8 pb-10 px-6">
+              <div className="space-y-4">
+                <label className="block text-sm font-medium">Upload HTML Playlist File</label>
+                <Input type="file" accept=".html" onChange={handleFileChange} className="py-2 text-base bg-gray-100 text-black" />
+                {loading && <p className="text-blue-600 text-sm">📡 Calling ChatGPT to analyze the uploaded file…</p>}
+              </div>
+
+              <div className="space-y-4">
+                <label className="block text-sm font-medium">Playlist Name</label>
+                <Input
+                  placeholder="e.g., 2020 Grammy Gold"
+                  value={playlistName}
+                  onChange={(e) => setPlaylistName(e.target.value)}
+                  className="py-2 text-base bg-gray-100 text-black"
+                />
+              </div>
+
+              <Button onClick={handleSubmit} disabled={loading} className="w-full text-base py-3">
+                {loading ? "Crafting your playlist... 🎧" : "Create YouTube Playlist"}
+              </Button>
+
+              {playlistLink && (
+                <div className="text-center mt-8">
+                  <p className="text-base mb-2">Your playlist is ready!</p>
+                  <a href={playlistLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                    View on YouTube
+                  </a>
+                </div>
+              )}
+
+              {addedTracks.length > 0 && (
+                <div className="text-sm mt-10 space-y-2">
+                  <p className="font-semibold">✅ Successfully added tracks:</p>
+                  <ul className="list-disc list-inside space-y-2">
+                    {addedTracks.map((track, i) => (
+                      <li key={i}>{track}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {parsedList.length > 0 && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-semibold">📃 Parsed Tracklist</h2>
+
+            {parsedList.length > 10 && (
+              <p className="text-sm italic text-red-600">
+                Only the first 10 tracks will be added to the YouTube playlist.
+              </p>
+            )}
+
+            <ul className="list-disc list-inside space-y-3 text-base">
+              {parsedList.map((track, i) => (
+                <li key={i}>{track}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="text-center text-sm text-gray-600 space-y-3">
+          <p>💖 Enjoying this tool?</p>
+          <a href="https://buymeacoffee.com/rithviksj" className="text-pink-600 underline" target="_blank" rel="noopener noreferrer">
+            Want to Buy me a coffee ☕ ?
+          </a>
+          <p>🌍 Share this app with friends and music lovers.</p>
+        </div>
+
+        <div className="mt-14 text-center space-y-4">
+          <h3 className="text-xl font-semibold">🎥 Discover how it works</h3>
+          <video
+            style={{ width: "60%", maxWidth: "700px" }}
+            className="mx-auto rounded-lg shadow-md"
+            autoPlay
+            loop
+            muted
+            playsInline
+            controls
+            src="/Bihag25.mp4"
+          />
+        </div>
+      </div>
+    </main>
+  );
+}
