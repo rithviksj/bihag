@@ -21,9 +21,11 @@ export default function VisitorMap() {
             name: loc.city !== "Unknown" ? `${loc.city}, ${loc.country}` : loc.country,
             count: loc.count || 1,
           }));
+          console.log(`VisitorMap: Loaded ${formattedVisitors.length} locations`, formattedVisitors);
           setVisitors(formattedVisitors);
           setTotalCount(data.total || formattedVisitors.length);
         } else {
+          console.log("VisitorMap: No location data available yet");
           // If no real data yet, show empty map
           setVisitors([]);
           setTotalCount(0);
@@ -96,6 +98,10 @@ export default function VisitorMap() {
           {/* Visitor dots */}
           {visitors.map((visitor, i) => {
             const { x, y } = latLngToXY(visitor.lat, visitor.lng);
+            // Debug logging (only in dev)
+            if (i === 0 && visitors.length > 0) {
+              console.log(`Rendering dot for ${visitor.name} at lat=${visitor.lat}, lng=${visitor.lng} → x=${x}, y=${y}`);
+            }
             return (
               <g key={i}>
                 {/* Pulsing circle effect */}

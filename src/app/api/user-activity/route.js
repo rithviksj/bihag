@@ -32,16 +32,38 @@ export async function POST(request) {
 
     const userAgent = request.headers.get("user-agent") || "unknown";
 
-    // Fetch geolocation from IP (using ipapi.co free tier with fallback)
+    // Fetch geolocation - Priority: Vercel headers > ipapi.co > fallback API
     let location = { country: "Unknown", city: "Unknown", lat: null, lng: null };
 
-    if (ip !== "unknown" && !ip.startsWith("192.168.") && !ip.startsWith("127.") && ip !== "::1") {
+    // PRIORITY 1: Use Vercel's built-in geo headers (fastest, most reliable on Vercel)
+    const vercelCity = request.headers.get("x-vercel-ip-city");
+    const vercelCountry = request.headers.get("x-vercel-ip-country");
+    const vercelLatitude = request.headers.get("x-vercel-ip-latitude");
+    const vercelLongitude = request.headers.get("x-vercel-ip-longitude");
+
+    if (vercelLatitude && vercelLongitude) {
+      location = {
+        country: vercelCountry ? decodeURIComponent(vercelCountry) : "Unknown",
+        city: vercelCity ? decodeURIComponent(vercelCity) : "Unknown",
+        lat: parseFloat(vercelLatitude),
+        lng: parseFloat(vercelLongitude),
+        region: null,
+      };
+      console.log("Using Vercel geo headers for location");
+    } else if (ip !== "unknown" && !ip.startsWith("192.168.") && !ip.startsWith("127.") && ip !== "::1") {
+      // PRIORITY 2: Fall back to external APIs if Vercel headers not available
       try {
+        // Create abort controller for timeout (edge runtime compatible)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+
         // Try primary geolocation API (ipapi.co)
         const geoResponse = await fetch(`https://ipapi.co/${ip}/json/`, {
           headers: { "User-Agent": "Bihag-Analytics/2.0" },
-          signal: AbortSignal.timeout(3000), // 3 second timeout
+          signal: controller.signal,
         });
+
+        clearTimeout(timeoutId);
 
         if (geoResponse.ok) {
           const geoData = await geoResponse.json();
@@ -55,22 +77,29 @@ export async function POST(request) {
               lng: geoData.longitude,
               region: geoData.region || null,
             };
+            console.log("Using ipapi.co for location");
           } else {
-            // Try fallback geolocation API (ip-api.com)
-            const fallbackResponse = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,city,lat,lon,regionName`, {
-              signal: AbortSignal.timeout(3000),
+            // PRIORITY 3: Try fallback geolocation API (ipgeolocation.app - supports HTTPS)
+            const fallbackController = new AbortController();
+            const fallbackTimeout = setTimeout(() => fallbackController.abort(), 3000);
+
+            const fallbackResponse = await fetch(`https://api.ipgeolocation.app/lookup/${ip}`, {
+              signal: fallbackController.signal,
             });
+
+            clearTimeout(fallbackTimeout);
 
             if (fallbackResponse.ok) {
               const fallbackData = await fallbackResponse.json();
-              if (fallbackData.status === "success" && fallbackData.lat && fallbackData.lon) {
+              if (fallbackData.latitude && fallbackData.longitude) {
                 location = {
                   country: fallbackData.country || "Unknown",
                   city: fallbackData.city || "Unknown",
-                  lat: fallbackData.lat,
-                  lng: fallbackData.lon,
-                  region: fallbackData.regionName || null,
+                  lat: parseFloat(fallbackData.latitude),
+                  lng: parseFloat(fallbackData.longitude),
+                  region: fallbackData.region || null,
                 };
+                console.log("Using ipgeolocation.app for location");
               }
             }
           }
@@ -79,20 +108,26 @@ export async function POST(request) {
         console.error("Geolocation fetch error:", geoError.message);
         // Try fallback even on error
         try {
-          const fallbackResponse = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,city,lat,lon,regionName`, {
-            signal: AbortSignal.timeout(3000),
+          const fallbackController = new AbortController();
+          const fallbackTimeout = setTimeout(() => fallbackController.abort(), 3000);
+
+          const fallbackResponse = await fetch(`https://api.ipgeolocation.app/lookup/${ip}`, {
+            signal: fallbackController.signal,
           });
+
+          clearTimeout(fallbackTimeout);
 
           if (fallbackResponse.ok) {
             const fallbackData = await fallbackResponse.json();
-            if (fallbackData.status === "success" && fallbackData.lat && fallbackData.lon) {
+            if (fallbackData.latitude && fallbackData.longitude) {
               location = {
                 country: fallbackData.country || "Unknown",
                 city: fallbackData.city || "Unknown",
-                lat: fallbackData.lat,
-                lng: fallbackData.lon,
-                region: fallbackData.regionName || null,
+                lat: parseFloat(fallbackData.latitude),
+                lng: parseFloat(fallbackData.longitude),
+                region: fallbackData.region || null,
               };
+              console.log("Using ipgeolocation.app fallback for location");
             }
           }
         } catch (fallbackError) {

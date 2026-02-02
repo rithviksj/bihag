@@ -60,6 +60,11 @@ export async function GET(request) {
 
       const locations = Array.from(locationMap.values());
 
+      console.log(`visitor-locations API: Found ${locations.length} unique locations from ${entries.length} log entries`);
+      if (locations.length > 0) {
+        console.log("Sample location:", locations[0]);
+      }
+
       return NextResponse.json({
         locations,
         total: locations.length,
