@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
 // Initialize Redis client
 const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
   ? new Redis({
