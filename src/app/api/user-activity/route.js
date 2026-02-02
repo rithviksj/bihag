@@ -198,11 +198,16 @@ export async function GET(request) {
     if (redis) {
       // Fetch from Redis (most recent first)
       const minScore = since ? new Date(since).getTime() : 0;
-      const entries = await redis.zrangebyscore(
+      // Upstash Redis uses zrange with byScore option
+      const entries = await redis.zrange(
         "user_activity_log",
         minScore,
         "+inf",
-        { rev: true, count: limit }
+        {
+          byScore: true,
+          rev: true,
+          count: limit
+        }
       );
 
       logs = entries.map((entry) => {

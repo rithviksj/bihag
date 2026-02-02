@@ -49,11 +49,15 @@ export async function GET(request) {
 
     if (action === "recent_activity") {
       // Get recent activity entries
-      const entries = await redis.zrangebyscore(
+      const entries = await redis.zrange(
         "user_activity_log",
         0,
         "+inf",
-        { rev: true, count: 5 }
+        {
+          byScore: true,
+          rev: true,
+          count: 5
+        }
       );
 
       const logs = entries.map((entry) => {
@@ -72,11 +76,15 @@ export async function GET(request) {
 
     if (action === "locations") {
       // Get activity entries with locations
-      const entries = await redis.zrangebyscore(
+      const entries = await redis.zrange(
         "user_activity_log",
         0,
         "+inf",
-        { rev: true, count: 100 }
+        {
+          byScore: true,
+          rev: true,
+          count: 100
+        }
       );
 
       const locationMap = new Map();

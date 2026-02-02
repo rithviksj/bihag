@@ -23,11 +23,16 @@ export async function GET(request) {
 
     if (redis) {
       // Fetch recent activity logs with location data
-      const entries = await redis.zrangebyscore(
+      // Upstash Redis uses zrange with byScore option
+      const entries = await redis.zrange(
         "user_activity_log",
         0,
         "+inf",
-        { rev: true, count: limit }
+        {
+          byScore: true,
+          rev: true,
+          count: limit
+        }
       );
 
       // Parse and extract unique locations
