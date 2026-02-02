@@ -152,18 +152,26 @@ export async function POST(request) {
     };
 
     if (redis) {
-      // Store in Redis with sorted set (sorted by timestamp)
-      const score = Date.now();
-      await redis.zadd("user_activity_log", {
-        score,
-        member: JSON.stringify(activityEntry),
-      });
-      console.log("Stored activity in Redis with location:", location.lat, location.lng);
+      try {
+        // Store in Redis with sorted set (sorted by timestamp)
+        const score = Date.now();
+        const writeResult = await redis.zadd("user_activity_log", {
+          score,
+          member: JSON.stringify(activityEntry),
+        });
+        console.log("Redis zadd result:", writeResult);
+        console.log("Stored activity in Redis with location:", location.lat, location.lng);
 
-      // Keep only last 10,000 entries (auto-cleanup)
-      const totalEntries = await redis.zcard("user_activity_log");
-      if (totalEntries > 10000) {
-        await redis.zremrangebyrank("user_activity_log", 0, totalEntries - 10001);
+        // Keep only last 10,000 entries (auto-cleanup)
+        const totalEntries = await redis.zcard("user_activity_log");
+        console.log("Total activity entries in Redis:", totalEntries);
+        if (totalEntries > 10000) {
+          // Use zremrangebyrank to remove oldest entries
+          await redis.zremrangebyrank("user_activity_log", 0, totalEntries - 10001);
+        }
+      } catch (redisError) {
+        console.error("Redis write error:", redisError);
+        throw redisError; // Re-throw to be caught by outer try-catch
       }
     } else {
       // Fallback: in-memory storage
