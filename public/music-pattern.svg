@@ -1,0 +1,46 @@
+<svg width="1200" height="1200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="musicPattern" x="0" y="0" width="400" height="400" patternUnits="userSpaceOnUse">
+      <!-- Sitar (Indian Classical) -->
+      <path d="M50 80 Q60 60 70 80 L75 150" stroke="#8B7355" stroke-width="2" fill="none" opacity="0.15"/>
+      <circle cx="72" cy="65" r="12" stroke="#8B7355" stroke-width="1.5" fill="none" opacity="0.15"/>
+
+      <!-- Tabla (Indian Percussion) -->
+      <ellipse cx="180" cy="120" rx="25" ry="15" stroke="#A0826D" stroke-width="1.5" fill="none" opacity="0.15"/>
+      <path d="M155 120 L205 120" stroke="#A0826D" stroke-width="1" opacity="0.15"/>
+
+      <!-- Microphone (Singer) -->
+      <rect x="280" y="200" width="30" height="50" rx="15" stroke="#6B7280" stroke-width="2" fill="none" opacity="0.15"/>
+      <line x1="295" y1="250" x2="295" y2="280" stroke="#6B7280" stroke-width="2" opacity="0.15"/>
+
+      <!-- Guitar (Western) -->
+      <ellipse cx="120" cy="280" rx="35" ry="45" stroke="#8B7355" stroke-width="2" fill="none" opacity="0.15"/>
+      <line x1="120" y1="240" x2="120" y2="320" stroke="#8B7355" stroke-width="1.5" opacity="0.15"/>
+      <line x1="110" y1="250" x2="110" y2="310" stroke="#8B7355" stroke-width="0.5" opacity="0.15"/>
+      <line x1="130" y1="250" x2="130" y2="310" stroke="#8B7355" stroke-width="0.5" opacity="0.15"/>
+
+      <!-- Headphones (Hip Hop) -->
+      <path d="M250 50 Q250 30 270 30 Q290 30 290 50 L290 80" stroke="#6B7280" stroke-width="2.5" fill="none" opacity="0.15"/>
+      <circle cx="240" cy="75" r="8" stroke="#6B7280" stroke-width="2" fill="none" opacity="0.15"/>
+      <circle cx="300" cy="75" r="8" stroke="#6B7280" stroke-width="2" fill="none" opacity="0.15"/>
+
+      <!-- Music Notes -->
+      <circle cx="340" cy="100" r="6" fill="#8B7355" opacity="0.12"/>
+      <line x1="346" y1="100" x2="346" y2="70" stroke="#8B7355" stroke-width="1.5" opacity="0.12"/>
+      <circle cx="30" cy="200" r="5" fill="#6B7280" opacity="0.12"/>
+      <line x1="35" y1="200" x2="35" y2="175" stroke="#6B7280" stroke-width="1.5" opacity="0.12"/>
+
+      <!-- Turntable (DJ/Hip Hop) -->
+      <circle cx="200" cy="320" r="30" stroke="#6B7280" stroke-width="2" fill="none" opacity="0.15"/>
+      <circle cx="200" cy="320" r="5" fill="#6B7280" opacity="0.15"/>
+      <line x1="200" y1="320" x2="220" y2="310" stroke="#6B7280" stroke-width="1.5" opacity="0.15"/>
+
+      <!-- Veena (Indian Classical) -->
+      <ellipse cx="50" cy="350" rx="20" ry="30" stroke="#A0826D" stroke-width="1.5" fill="none" opacity="0.15"/>
+      <line x1="70" y1="350" x2="140" y2="350" stroke="#A0826D" stroke-width="2" opacity="0.15"/>
+      <circle cx="145" cy="350" r="8" stroke="#A0826D" stroke-width="1.5" fill="none" opacity="0.15"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="1200" fill="url(#musicPattern)"/>
+</svg>
