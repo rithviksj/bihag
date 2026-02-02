@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import WorkflowDiagram from "@/components/WorkflowDiagram";
 import VisitorCounter from "@/components/VisitorCounter";
+import PlaylistCounter from "@/components/PlaylistCounter";
 import VisitorMap from "@/components/VisitorMap";
 import FeedbackWidget from "@/components/FeedbackWidget";
 
@@ -524,10 +525,12 @@ export default function Bihag() {
           <p className="text-green-700 font-medium">🌍 Share this app with friends and music lovers</p>
         </div>
 
-        {/* Analytics - Visitor Counter & Map */}
+        {/* Analytics - Visitor Counter, Playlist Counter & Map */}
         <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl shadow-black/20 border border-gray-300 p-8 space-y-6">
-          <div className="flex justify-center">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-6 sm:gap-12">
             <VisitorCounter />
+            <div className="hidden sm:block w-px h-8 bg-gray-300"></div>
+            <PlaylistCounter />
           </div>
           <VisitorMap />
         </div>
