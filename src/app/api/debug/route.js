@@ -23,6 +23,11 @@ export async function GET(request) {
       return NextResponse.json({
         error: "Redis not configured",
         status: "Redis client is null - check environment variables",
+        envCheck: {
+          UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL ? "present" : "MISSING",
+          UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN ? "present" : "MISSING",
+          urlPrefix: process.env.UPSTASH_REDIS_REST_URL?.substring(0, 30) || "N/A",
+        },
       });
     }
 
@@ -107,8 +112,19 @@ export async function GET(request) {
       });
     }
 
+    if (action === "env") {
+      // Show environment variable status
+      return NextResponse.json({
+        environmentVariables: {
+          UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL ? `present (${process.env.UPSTASH_REDIS_REST_URL.substring(0, 30)}...)` : "MISSING",
+          UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN ? `present (${process.env.UPSTASH_REDIS_REST_TOKEN.substring(0, 20)}...)` : "MISSING",
+        },
+        redisStatus: redis ? "initialized" : "null",
+      });
+    }
+
     return NextResponse.json({
-      availableActions: ["status", "recent_activity", "locations"],
+      availableActions: ["status", "recent_activity", "locations", "env"],
       usage: "/api/debug?action=status",
     });
 
