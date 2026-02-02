@@ -1,31 +1,25 @@
 import { NextResponse } from "next/server";
-
-// Simple in-memory counter (resets on server restart)
-// For production with Upstash Redis, uncomment the Redis implementation below
-let visitorCount = 0;
-const visitedIPs = new Set();
-
-/*
-// Upstash Redis implementation (requires env variables)
 import { Redis } from "@upstash/redis";
 
+// Initialize Redis client
 const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
   ? new Redis({
       url: process.env.UPSTASH_REDIS_REST_URL,
       token: process.env.UPSTASH_REDIS_REST_TOKEN,
     })
   : null;
-*/
+
+// Fallback in-memory storage for development (resets on server restart)
+let visitorCount = 0;
+const visitedIPs = new Set();
 
 export async function GET() {
   try {
-    /*
-    // Redis implementation
     if (redis) {
-      const count = await redis.get("visitor_count") || 0;
+      // Fetch total unique visitors from Redis
+      const count = await redis.scard("unique_visitors") || 0;
       return NextResponse.json({ count: Number(count) });
     }
-    */
 
     return NextResponse.json({ count: visitorCount });
   } catch (error) {
@@ -42,22 +36,54 @@ export async function POST(request) {
       request.headers.get("x-real-ip") ||
       "unknown";
 
-    // Only increment if this IP hasn't visited in this session
-    if (!visitedIPs.has(ip)) {
-      visitedIPs.add(ip);
-      visitorCount++;
+    const body = await request.json();
+    const { email } = body; // Email from OAuth authentication
 
-      /*
-      // Redis implementation
-      if (redis) {
-        await redis.incr("visitor_count");
+    let isNewVisitor = false;
+
+    if (redis) {
+      // Use IP-based tracking for unique visitors
+      const added = await redis.sadd("unique_visitors", ip);
+      isNewVisitor = added === 1;
+
+      // If email provided, also track authenticated users
+      if (email) {
+        await redis.sadd("authenticated_users", email);
+
+        // Store visitor info with geolocation
+        const visitorKey = `visitor:${ip}`;
+        await redis.hset(visitorKey, {
+          ip,
+          email,
+          lastVisit: new Date().toISOString(),
+        });
+
+        // Set expiry: 30 days
+        await redis.expire(visitorKey, 30 * 24 * 60 * 60);
       }
-      */
-    }
 
-    return NextResponse.json({ count: visitorCount });
+      // Get updated count
+      const totalCount = await redis.scard("unique_visitors");
+
+      return NextResponse.json({
+        count: Number(totalCount),
+        isNewVisitor,
+      });
+    } else {
+      // Fallback: in-memory
+      if (!visitedIPs.has(ip)) {
+        visitedIPs.add(ip);
+        visitorCount++;
+        isNewVisitor = true;
+      }
+
+      return NextResponse.json({
+        count: visitorCount,
+        isNewVisitor,
+      });
+    }
   } catch (error) {
     console.error("Error incrementing visitor count:", error);
-    return NextResponse.json({ count: visitorCount });
+    return NextResponse.json({ count: visitorCount || 0 });
   }
 }

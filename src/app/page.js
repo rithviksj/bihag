@@ -25,6 +25,7 @@ export default function Bihag() {
   const [skippedTracks, setSkippedTracks] = useState([]);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [accessToken, setAccessToken] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -37,10 +38,43 @@ export default function Bihag() {
         window.googleTokenClient = window.google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
           scope: "https://www.googleapis.com/auth/youtube",
-          callback: (tokenResponse) => {
+          callback: async (tokenResponse) => {
             if (tokenResponse && tokenResponse.access_token) {
               setAccessToken(tokenResponse.access_token);
               setIsSignedIn(true);
+
+              // Fetch user email from Google API
+              try {
+                const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+                  headers: {
+                    Authorization: `Bearer ${tokenResponse.access_token}`,
+                  },
+                });
+                const userInfo = await userInfoRes.json();
+                if (userInfo.email) {
+                  setUserEmail(userInfo.email);
+
+                  // Log authenticated user activity
+                  await fetch("/api/user-activity", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      action: "oauth_login",
+                      email: userInfo.email,
+                      metadata: { provider: "google" },
+                    }),
+                  });
+
+                  // Update visitor count with email
+                  await fetch("/api/visitor-count", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: userInfo.email }),
+                  });
+                }
+              } catch (emailError) {
+                console.error("Error fetching user email:", emailError);
+              }
             }
           },
         });
@@ -202,6 +236,28 @@ export default function Bihag() {
       setAddedTracks(added);
       setSkippedTracks(skipped);
       setScrapingStatus(`Playlist created! ${added.length} of ${songsToAdd.length} songs added successfully.`);
+
+      // Log playlist creation activity
+      try {
+        await fetch("/api/user-activity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "playlist_created",
+            email: userEmail || "anonymous",
+            metadata: {
+              playlistId,
+              playlistName,
+              songsAdded: added.length,
+              songsSkipped: skipped.length,
+              totalSongs: songsToAdd.length,
+              sourceUrl: playlistUrl,
+            },
+          }),
+        });
+      } catch (logError) {
+        console.error("Error logging playlist creation:", logError);
+      }
     } catch (err) {
       console.error("Playlist creation error:", err);
       setError("Error creating playlist. Please try again.");

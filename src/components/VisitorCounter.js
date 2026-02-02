@@ -7,14 +7,28 @@ export default function VisitorCounter() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Increment visitor count on mount
+    // Increment visitor count and log activity on mount
     const incrementVisitor = async () => {
       try {
-        const response = await fetch("/api/visitor-count", {
+        // Increment visitor count
+        const countResponse = await fetch("/api/visitor-count", {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: null }), // Email will be added after OAuth
         });
-        const data = await response.json();
-        setCount(data.count);
+        const countData = await countResponse.json();
+        setCount(countData.count);
+
+        // Log page visit activity
+        await fetch("/api/user-activity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "page_visit",
+            email: null,
+            metadata: { page: "home" },
+          }),
+        });
       } catch (error) {
         console.error("Error tracking visitor:", error);
         // Fallback: fetch current count

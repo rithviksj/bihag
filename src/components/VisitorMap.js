@@ -3,20 +3,43 @@
 import { useEffect, useState } from "react";
 
 export default function VisitorMap() {
-  const [visitors, setVisitors] = useState([
-    { lat: 37.7749, lng: -122.4194, name: "San Francisco" },
-    { lat: 40.7128, lng: -74.0060, name: "New York" },
-    { lat: 51.5074, lng: -0.1278, name: "London" },
-    { lat: 48.8566, lng: 2.3522, name: "Paris" },
-    { lat: 35.6762, lng: 139.6503, name: "Tokyo" },
-    { lat: -33.8688, lng: 151.2093, name: "Sydney" },
-    { lat: 19.0760, lng: 72.8777, name: "Mumbai" },
-    { lat: 1.3521, lng: 103.8198, name: "Singapore" },
-    { lat: -23.5505, lng: -46.6333, name: "São Paulo" },
-    { lat: 55.7558, lng: 37.6173, name: "Moscow" },
-    { lat: 52.5200, lng: 13.4050, name: "Berlin" },
-    { lat: 25.2048, lng: 55.2708, name: "Dubai" },
-  ]);
+  const [visitors, setVisitors] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch real visitor locations from API
+    const fetchLocations = async () => {
+      try {
+        const response = await fetch("/api/visitor-locations?limit=100");
+        const data = await response.json();
+
+        if (data.locations && data.locations.length > 0) {
+          const formattedVisitors = data.locations.map((loc) => ({
+            lat: loc.lat,
+            lng: loc.lng,
+            name: loc.city !== "Unknown" ? `${loc.city}, ${loc.country}` : loc.country,
+            count: loc.count || 1,
+          }));
+          setVisitors(formattedVisitors);
+        } else {
+          // If no real data yet, show empty map
+          setVisitors([]);
+        }
+      } catch (error) {
+        console.error("Error fetching visitor locations:", error);
+        // On error, show empty map
+        setVisitors([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLocations();
+
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchLocations, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Convert lat/lng to SVG coordinates (Equirectangular projection)
   const latLngToXY = (lat, lng) => {
@@ -24,6 +47,20 @@ export default function VisitorMap() {
     const y = ((90 - lat) / 180) * 500;
     return { x, y };
   };
+
+  if (loading) {
+    return (
+      <div className="text-center space-y-4">
+        <h3 className="text-xl font-semibold text-gray-800">🌍 Global Visitor Map</h3>
+        <div className="bg-[#E5E5E5] rounded-xl p-6 shadow-2xl flex items-center justify-center h-64">
+          <svg className="animate-spin h-8 w-8 text-gray-600" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="text-center space-y-4">
@@ -71,7 +108,11 @@ export default function VisitorMap() {
           })}
         </svg>
         <p className="text-sm text-gray-600 mt-4 font-sans">
-          📍 {visitors.length} active visitors from around the world
+          {visitors.length > 0 ? (
+            <>📍 {visitors.length} unique location{visitors.length !== 1 ? "s" : ""} from around the world</>
+          ) : (
+            <>🌐 Be the first visitor to appear on the map!</>
+          )}
         </p>
       </div>
     </div>
