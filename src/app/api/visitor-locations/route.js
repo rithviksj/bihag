@@ -36,6 +36,10 @@ export async function GET(request) {
       for (const entry of entries) {
         try {
           const log = JSON.parse(entry);
+          // Log first entry for debugging
+          if (locationMap.size === 0) {
+            console.log("First activity log entry:", JSON.stringify(log, null, 2));
+          }
           if (log.location && log.location.lat && log.location.lng) {
             const key = `${log.location.lat},${log.location.lng}`;
 
@@ -52,6 +56,8 @@ export async function GET(request) {
               const loc = locationMap.get(key);
               loc.count++;
             }
+          } else if (log.location) {
+            console.log("Activity log has location but missing lat/lng:", log.location);
           }
         } catch (parseError) {
           console.error("Parse error for visitor location:", parseError.message);

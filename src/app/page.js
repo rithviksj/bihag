@@ -171,7 +171,9 @@ export default function Bihag() {
       });
 
       if (!createRes.ok) {
-        throw new Error("Failed to create playlist");
+        const errorData = await createRes.json();
+        console.error("YouTube API error:", errorData);
+        throw new Error(errorData.error?.message || `Failed to create playlist: ${createRes.status}`);
       }
 
       const data = await createRes.json();
@@ -260,7 +262,9 @@ export default function Bihag() {
       }
     } catch (err) {
       console.error("Playlist creation error:", err);
-      setError("Error creating playlist. Please try again.");
+      const errorMessage = err.message || "Unknown error";
+      setError(`Error creating playlist: ${errorMessage}. Please check your YouTube quota and try again.`);
+      setScrapingStatus("");
     }
 
     setLoading(false);

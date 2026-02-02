@@ -41,6 +41,8 @@ export async function POST(request) {
     const vercelLatitude = request.headers.get("x-vercel-ip-latitude");
     const vercelLongitude = request.headers.get("x-vercel-ip-longitude");
 
+    console.log("Vercel geo headers:", { vercelCity, vercelCountry, vercelLatitude, vercelLongitude });
+
     if (vercelLatitude && vercelLongitude) {
       location = {
         country: vercelCountry ? decodeURIComponent(vercelCountry) : "Unknown",
@@ -49,7 +51,7 @@ export async function POST(request) {
         lng: parseFloat(vercelLongitude),
         region: null,
       };
-      console.log("Using Vercel geo headers for location");
+      console.log("Using Vercel geo headers for location:", location);
     } else if (ip !== "unknown" && !ip.startsWith("192.168.") && !ip.startsWith("127.") && ip !== "::1") {
       // PRIORITY 2: Fall back to external APIs if Vercel headers not available
       try {
@@ -136,6 +138,9 @@ export async function POST(request) {
       }
     }
 
+    // Log geolocation result for debugging
+    console.log("Geolocation result for IP", ip, ":", location);
+
     const activityEntry = {
       timestamp: new Date().toISOString(),
       email: email || "anonymous",
@@ -153,6 +158,7 @@ export async function POST(request) {
         score,
         member: JSON.stringify(activityEntry),
       });
+      console.log("Stored activity in Redis with location:", location.lat, location.lng);
 
       // Keep only last 10,000 entries (auto-cleanup)
       const totalEntries = await redis.zcard("user_activity_log");
