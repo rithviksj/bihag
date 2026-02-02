@@ -32,27 +32,72 @@ export async function POST(request) {
 
     const userAgent = request.headers.get("user-agent") || "unknown";
 
-    // Fetch geolocation from IP (using ipapi.co free tier)
+    // Fetch geolocation from IP (using ipapi.co free tier with fallback)
     let location = { country: "Unknown", city: "Unknown", lat: null, lng: null };
 
-    if (ip !== "unknown" && !ip.startsWith("192.168.") && !ip.startsWith("127.")) {
+    if (ip !== "unknown" && !ip.startsWith("192.168.") && !ip.startsWith("127.") && ip !== "::1") {
       try {
+        // Try primary geolocation API (ipapi.co)
         const geoResponse = await fetch(`https://ipapi.co/${ip}/json/`, {
           headers: { "User-Agent": "Bihag-Analytics/2.0" },
+          signal: AbortSignal.timeout(3000), // 3 second timeout
         });
 
         if (geoResponse.ok) {
           const geoData = await geoResponse.json();
-          location = {
-            country: geoData.country_name || "Unknown",
-            city: geoData.city || "Unknown",
-            lat: geoData.latitude || null,
-            lng: geoData.longitude || null,
-            region: geoData.region || null,
-          };
+
+          // Check if we got valid data (ipapi.co returns error object on failure)
+          if (geoData.latitude && geoData.longitude && !geoData.error) {
+            location = {
+              country: geoData.country_name || "Unknown",
+              city: geoData.city || "Unknown",
+              lat: geoData.latitude,
+              lng: geoData.longitude,
+              region: geoData.region || null,
+            };
+          } else {
+            // Try fallback geolocation API (ip-api.com)
+            const fallbackResponse = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,city,lat,lon,regionName`, {
+              signal: AbortSignal.timeout(3000),
+            });
+
+            if (fallbackResponse.ok) {
+              const fallbackData = await fallbackResponse.json();
+              if (fallbackData.status === "success" && fallbackData.lat && fallbackData.lon) {
+                location = {
+                  country: fallbackData.country || "Unknown",
+                  city: fallbackData.city || "Unknown",
+                  lat: fallbackData.lat,
+                  lng: fallbackData.lon,
+                  region: fallbackData.regionName || null,
+                };
+              }
+            }
+          }
         }
       } catch (geoError) {
         console.error("Geolocation fetch error:", geoError.message);
+        // Try fallback even on error
+        try {
+          const fallbackResponse = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,city,lat,lon,regionName`, {
+            signal: AbortSignal.timeout(3000),
+          });
+
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
+            if (fallbackData.status === "success" && fallbackData.lat && fallbackData.lon) {
+              location = {
+                country: fallbackData.country || "Unknown",
+                city: fallbackData.city || "Unknown",
+                lat: fallbackData.lat,
+                lng: fallbackData.lon,
+                region: fallbackData.regionName || null,
+              };
+            }
+          }
+        } catch (fallbackError) {
+          console.error("Fallback geolocation also failed:", fallbackError.message);
+        }
       }
     }
 

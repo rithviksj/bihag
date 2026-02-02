@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 export default function VisitorMap() {
   const [visitors, setVisitors] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,14 +22,17 @@ export default function VisitorMap() {
             count: loc.count || 1,
           }));
           setVisitors(formattedVisitors);
+          setTotalCount(data.total || formattedVisitors.length);
         } else {
           // If no real data yet, show empty map
           setVisitors([]);
+          setTotalCount(0);
         }
       } catch (error) {
         console.error("Error fetching visitor locations:", error);
         // On error, show empty map
         setVisitors([]);
+        setTotalCount(0);
       } finally {
         setLoading(false);
       }
@@ -36,8 +40,8 @@ export default function VisitorMap() {
 
     fetchLocations();
 
-    // Refresh every 5 minutes
-    const interval = setInterval(fetchLocations, 5 * 60 * 1000);
+    // Refresh every 2 minutes for more responsive updates
+    const interval = setInterval(fetchLocations, 2 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -109,9 +113,9 @@ export default function VisitorMap() {
         </svg>
         <p className="text-sm text-gray-600 mt-4 font-sans">
           {visitors.length > 0 ? (
-            <>📍 {visitors.length} unique location{visitors.length !== 1 ? "s" : ""} from around the world</>
+            <>📍 {totalCount} unique location{totalCount !== 1 ? "s" : ""} from around the world</>
           ) : (
-            <>🌐 Be the first visitor to appear on the map!</>
+            <>🌐 Visitors from around the world will appear here</>
           )}
         </p>
       </div>
