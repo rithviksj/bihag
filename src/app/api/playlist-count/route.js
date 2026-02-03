@@ -15,26 +15,24 @@ export async function GET() {
   try {
     if (redis) {
       // Count playlist_created actions in activity log
+      // Get all entries using rank-based indexing (0 to -1 means all entries)
       const entries = await redis.zrange(
         "user_activity_log",
         0,
-        "+inf",
-        {
-          byScore: true,
-          rev: true,
-          count: 1000 // Get up to 1000 entries
-        }
+        -1
       );
 
       let playlistCount = 0;
       for (const entry of entries) {
         try {
-          const log = JSON.parse(entry);
+          // Upstash Redis may auto-deserialize or return string
+          const log = typeof entry === 'string' ? JSON.parse(entry) : entry;
           if (log.action === "playlist_created") {
             playlistCount++;
           }
         } catch (e) {
           // Skip parse errors
+          console.error("Error parsing activity log entry:", e);
         }
       }
 
