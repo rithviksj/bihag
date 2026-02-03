@@ -215,11 +215,15 @@ export async function GET(request) {
       ).then(logs => logs.reverse()); // Reverse to show most recent first
 
       logs = entries.map((entry) => {
-        try {
-          return JSON.parse(entry);
-        } catch {
-          return { error: "Parse error", raw: entry };
+        // Upstash Redis REST API auto-deserializes JSON
+        if (typeof entry === 'string') {
+          try {
+            return JSON.parse(entry);
+          } catch {
+            return { error: "Parse error", raw: entry };
+          }
         }
+        return entry;
       });
     } else {
       // Fallback: in-memory

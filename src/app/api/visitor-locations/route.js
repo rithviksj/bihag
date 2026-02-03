@@ -37,7 +37,8 @@ export async function GET(request) {
 
       for (const entry of entries) {
         try {
-          const log = JSON.parse(entry);
+          // Upstash Redis REST API auto-deserializes JSON
+          const log = typeof entry === 'string' ? JSON.parse(entry) : entry;
           // Log first entry for debugging
           if (locationMap.size === 0) {
             console.log("First activity log entry:", JSON.stringify(log, null, 2));

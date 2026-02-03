@@ -59,11 +59,16 @@ export async function GET(request) {
     );
 
     const logs = entries.map((entry) => {
-      try {
-        return JSON.parse(entry);
-      } catch {
-        return { error: "Parse error", raw: entry };
+      // Upstash Redis REST API auto-deserializes JSON
+      if (typeof entry === 'string') {
+        try {
+          return JSON.parse(entry);
+        } catch {
+          return { error: "Parse error", raw: entry };
+        }
       }
+      // Already an object
+      return entry;
     });
 
     // Get total count

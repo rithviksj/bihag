@@ -56,11 +56,15 @@ export async function GET(request) {
       );
 
       const logs = entries.map((entry) => {
-        try {
-          return JSON.parse(entry);
-        } catch {
-          return { error: "Parse error", raw: entry };
+        // Upstash Redis REST API auto-deserializes JSON
+        if (typeof entry === 'string') {
+          try {
+            return JSON.parse(entry);
+          } catch {
+            return { error: "Parse error", raw: entry };
+          }
         }
+        return entry;
       });
 
       return NextResponse.json({
@@ -83,7 +87,8 @@ export async function GET(request) {
 
       for (const entry of entries) {
         try {
-          const log = JSON.parse(entry);
+          // Upstash Redis REST API auto-deserializes JSON
+          const log = typeof entry === 'string' ? JSON.parse(entry) : entry;
           if (log.location && log.location.lat && log.location.lng) {
             const key = `${log.location.lat},${log.location.lng}`;
             if (!locationMap.has(key)) {
