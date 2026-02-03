@@ -838,6 +838,6 @@ This is open-source software. You are free to use, modify, and distribute this c
 ## 📧 Contact
 
 **Creator**: Rithvik Javgal
-**Email**: rithvik.javgal@gmail.com
+**Email**: rithviksj@gmail.com
 **GitHub**: [@rithviksj](https://github.com/rithviksj)
 **Support**: ☕ [Buy me a coffee](https://buymeacoffee.com/rithviksj)

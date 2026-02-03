@@ -612,7 +612,7 @@ export default function Bihag() {
             </a>
             {" · "}
             <a
-              href="mailto:rithvik.javgal@gmail.com"
+              href="mailto:rithviksj@gmail.com"
               className="hover:text-gray-700 underline"
             >
               Contact
