@@ -823,4 +823,21 @@ MIT License — feel free to fork and modify for your own use.
 
 **The app you never knew you needed but always deserved.**
 
-For questions or support, contact: rithviksj@gmail.com
+---
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+**Copyright © 2026 Rithvik Javgal. All rights reserved.**
+
+This is open-source software. You are free to use, modify, and distribute this code with proper attribution.
+
+---
+
+## 📧 Contact
+
+**Creator**: Rithvik Javgal
+**Email**: rithvik.javgal@gmail.com
+**GitHub**: [@rithviksj](https://github.com/rithviksj)
+**Support**: ☕ [Buy me a coffee](https://buymeacoffee.com/rithviksj)

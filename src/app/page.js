@@ -593,10 +593,30 @@ export default function Bihag() {
           <VisitorMap />
         </div>
 
-        {/* Watermark */}
-        <div className="text-center py-8 border-t border-gray-400">
+        {/* Footer */}
+        <div className="text-center py-8 border-t border-gray-400 space-y-3">
           <p className="text-sm text-gray-600 font-light">
             Designed & Developed by <span className="text-gray-800 font-semibold">Rithvik Javgal</span>
+          </p>
+          <p className="text-xs text-gray-500">
+            © {new Date().getFullYear()} Rithvik Javgal. All rights reserved.
+          </p>
+          <p className="text-xs text-gray-500">
+            <a
+              href="https://github.com/rithviksj/bihag"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-700 underline"
+            >
+              Open Source
+            </a>
+            {" · "}
+            <a
+              href="mailto:rithvik.javgal@gmail.com"
+              className="hover:text-gray-700 underline"
+            >
+              Contact
+            </a>
           </p>
         </div>
       </div>
