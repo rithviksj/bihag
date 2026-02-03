@@ -28,6 +28,7 @@ export default function Bihag() {
   const [accessToken, setAccessToken] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
   const [error, setError] = useState(null);
+  const [quotaError, setQuotaError] = useState(false);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -100,6 +101,7 @@ export default function Bihag() {
 
     setLoading(true);
     setError(null);
+    setQuotaError(false);
     setScrapingStatus("Fetching playlist from radio station...");
     setParsedSongs([]);
 
@@ -146,6 +148,7 @@ export default function Bihag() {
 
     setLoading(true);
     setError(null);
+    setQuotaError(false);
     setProgress(0);
     setAddedTracks([]);
     setSkippedTracks([]);
@@ -264,7 +267,17 @@ export default function Bihag() {
     } catch (err) {
       console.error("Playlist creation error:", err);
       const errorMessage = err.message || "Unknown error";
-      setError(`Error creating playlist: ${errorMessage}. Please check your YouTube quota and try again.`);
+
+      // Check if it's a quota error
+      const isQuotaError = errorMessage.toLowerCase().includes("quota") ||
+                          errorMessage.toLowerCase().includes("exceeded");
+
+      if (isQuotaError) {
+        setQuotaError(true);
+        setError("YouTube API quota limit reached. The free tier allows ~3 playlists per day.");
+      } else {
+        setError(`Error creating playlist: ${errorMessage}`);
+      }
       setScrapingStatus("");
     }
 
@@ -325,9 +338,54 @@ export default function Bihag() {
               {loading && !parsedSongs.length ? "Fetching playlist..." : "Fetch Playlist"}
             </Button>
 
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4 text-red-300 text-sm">
+            {/* Quota Error - Special Banner */}
+            {error && quotaError && (
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-orange-300 rounded-xl p-6 shadow-lg">
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <svg className="w-8 h-8 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-orange-900 mb-2">
+                      Daily API Limit Reached
+                    </h3>
+                    <p className="text-gray-700 mb-3">
+                      YouTube's free API tier limits playlist creation to ~3 per day. The limit resets at midnight Pacific Time.
+                    </p>
+                    <p className="text-gray-800 font-medium mb-4">
+                      ☕ Love this tool? Your support helps increase API limits and keep Bihag running for everyone!
+                    </p>
+                    <a
+                      href="https://buymeacoffee.com/rithviksj"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg font-bold hover:from-amber-600 hover:to-orange-600 shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                    >
+                      <span className="mr-2">☕</span>
+                      Buy Me a Coffee
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </a>
+                    <button
+                      onClick={() => {
+                        setError(null);
+                        setQuotaError(false);
+                      }}
+                      className="ml-4 text-sm text-gray-600 hover:text-gray-800 underline"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Regular Error Message */}
+            {error && !quotaError && (
+              <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4 text-red-700 text-sm">
                 <p className="font-semibold">Error</p>
                 <p>{error}</p>
               </div>
