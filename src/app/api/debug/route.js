@@ -48,16 +48,11 @@ export async function GET(request) {
     }
 
     if (action === "recent_activity") {
-      // Get recent activity entries
+      // Get recent 5 activity entries
       const entries = await redis.zrange(
         "user_activity_log",
-        0,
-        "+inf",
-        {
-          byScore: true,
-          rev: true,
-          count: 5
-        }
+        -5,
+        -1
       );
 
       const logs = entries.map((entry) => {
@@ -75,16 +70,13 @@ export async function GET(request) {
     }
 
     if (action === "locations") {
-      // Get activity entries with locations
+      // Get last 100 activity entries with locations
+      const totalCount = await redis.zcard("user_activity_log");
+      const startRank = Math.max(0, totalCount - 100);
       const entries = await redis.zrange(
         "user_activity_log",
-        0,
-        "+inf",
-        {
-          byScore: true,
-          rev: true,
-          count: 100
-        }
+        startRank,
+        -1
       );
 
       const locationMap = new Map();

@@ -205,18 +205,14 @@ export async function GET(request) {
 
     if (redis) {
       // Fetch from Redis (most recent first)
-      const minScore = since ? new Date(since).getTime() : 0;
-      // Upstash Redis uses zrange with byScore option
+      // Use rank-based range to get last N entries
+      const totalCount = await redis.zcard("user_activity_log");
+      const startRank = Math.max(0, totalCount - limit);
       const entries = await redis.zrange(
         "user_activity_log",
-        minScore,
-        "+inf",
-        {
-          byScore: true,
-          rev: true,
-          count: limit
-        }
-      );
+        startRank,
+        -1
+      ).then(logs => logs.reverse()); // Reverse to show most recent first
 
       logs = entries.map((entry) => {
         try {

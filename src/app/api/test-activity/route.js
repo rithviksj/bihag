@@ -48,15 +48,13 @@ export async function GET(request) {
       member: JSON.stringify(testEntry),
     });
 
-    // Read back from Redis
+    // Read back from Redis (last 5 entries by rank, not score)
     const entries = await redis.zrange(
       "user_activity_log",
-      0,
-      "+inf",
+      -5,
+      -1,
       {
-        byScore: true,
-        rev: true,
-        count: 5
+        rev: false // Get last 5 items
       }
     );
 
