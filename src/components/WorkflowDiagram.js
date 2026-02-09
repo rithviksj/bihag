@@ -22,7 +22,7 @@ export default function WorkflowDiagram() {
       number: 3,
       icon: "🎵",
       title: "Extract Songs",
-      description: "Identify top 20 tracks",
+      description: "Identify playlist tracks",
       gradient: "from-gray-500 to-gray-600",
       actor: "auto",
     },

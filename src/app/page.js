@@ -185,7 +185,9 @@ export default function Bihag() {
       const added = [];
       const skipped = [];
 
-      const songsToAdd = parsedSongs.slice(0, Math.min(20, parsedSongs.length));
+      // No song limit for admin, 5-song limit for others
+      const songLimit = userEmail === "rithviksj@gmail.com" ? parsedSongs.length : 5;
+      const songsToAdd = parsedSongs.slice(0, songLimit);
 
       // Search and add songs
       for (let i = 0; i < songsToAdd.length; i++) {
@@ -413,20 +415,28 @@ export default function Bihag() {
                   <h3 className="text-lg font-semibold text-emerald-300 mb-2">
                     ✅ Playlist Ready! Found {parsedSongs.length} song{parsedSongs.length !== 1 ? "s" : ""}
                   </h3>
-                  {parsedSongs.length > 20 && (
-                    <p className="text-sm text-emerald-400">
-                      Only the first 20 songs will be added to the YouTube playlist.
-                    </p>
-                  )}
+                  {(() => {
+                    const limit = userEmail === "rithviksj@gmail.com" ? parsedSongs.length : 5;
+                    return parsedSongs.length > limit && (
+                      <p className="text-sm text-emerald-400">
+                        {userEmail === "rithviksj@gmail.com"
+                          ? "All songs will be added to the YouTube playlist."
+                          : "Only the first 5 songs will be added to the YouTube playlist."}
+                      </p>
+                    );
+                  })()}
                 </div>
 
                 {/* Song List Preview */}
                 <details className="text-sm">
                   <summary className="cursor-pointer font-semibold text-green-700 hover:text-green-600">
-                    Preview songs ({Math.min(20, parsedSongs.length)} will be added)
+                    Preview songs ({(() => {
+                      const limit = userEmail === "rithviksj@gmail.com" ? parsedSongs.length : 5;
+                      return Math.min(limit, parsedSongs.length);
+                    })()} will be added)
                   </summary>
                   <ul className="list-disc list-inside space-y-2 mt-4 text-base max-h-64 overflow-y-auto">
-                    {parsedSongs.slice(0, 20).map((song, i) => (
+                    {parsedSongs.slice(0, userEmail === "rithviksj@gmail.com" ? parsedSongs.length : 5).map((song, i) => (
                       <li key={i} className="text-gray-700">
                         {song.combined}
                       </li>
