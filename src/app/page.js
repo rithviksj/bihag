@@ -54,6 +54,8 @@ export default function Bihag() {
                 });
                 const userInfo = await userInfoRes.json();
                 if (userInfo.email) {
+                  console.log("User email detected:", userInfo.email);
+                  console.log("Is admin user:", userInfo.email === "rithviksj@gmail.com");
                   setUserEmail(userInfo.email);
 
                   // Log authenticated user activity
@@ -186,8 +188,12 @@ export default function Bihag() {
       const skipped = [];
 
       // No song limit for admin, 5-song limit for others
+      console.log("Creating playlist - User email:", userEmail);
+      console.log("Total songs scraped:", parsedSongs.length);
       const songLimit = userEmail === "rithviksj@gmail.com" ? parsedSongs.length : 5;
+      console.log("Song limit applied:", songLimit);
       const songsToAdd = parsedSongs.slice(0, songLimit);
+      console.log("Songs to add:", songsToAdd.length);
 
       // Search and add songs
       for (let i = 0; i < songsToAdd.length; i++) {
@@ -418,10 +424,10 @@ export default function Bihag() {
                   {(() => {
                     const limit = userEmail === "rithviksj@gmail.com" ? parsedSongs.length : 5;
                     return parsedSongs.length > limit && (
-                      <p className="text-sm text-emerald-400">
+                      <p className="text-sm text-gray-700 font-medium">
                         {userEmail === "rithviksj@gmail.com"
-                          ? "All songs will be added to the YouTube playlist."
-                          : "Only the first 5 songs will be added to the YouTube playlist."}
+                          ? "✨ All songs will be added to the YouTube playlist."
+                          : "⚠️ Only the first 5 songs will be added due to YouTube API quota limits."}
                       </p>
                     );
                   })()}
@@ -497,12 +503,15 @@ export default function Bihag() {
 
         {/* Success - Playlist Link with Feedback */}
         {playlistLink && (
-          <Card className="bg-emerald-900/20 border-2 border-emerald-500/40 backdrop-blur-sm shadow-2xl shadow-black/50">
+          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 backdrop-blur-sm shadow-2xl shadow-black/20">
             <CardContent className="p-6 text-center space-y-6">
               <div className="text-6xl">🎉</div>
-              <h3 className="text-2xl font-bold text-emerald-300">Playlist Created!</h3>
-              <p className="text-emerald-400 text-lg">
-                {addedTracks.length} of {Math.min(20, parsedSongs.length)} songs added successfully
+              <h3 className="text-2xl font-bold text-green-800">Playlist Created!</h3>
+              <p className="text-gray-800 text-lg font-semibold">
+                {addedTracks.length} of {(() => {
+                  const limit = userEmail === "rithviksj@gmail.com" ? parsedSongs.length : 5;
+                  return Math.min(limit, parsedSongs.length);
+                })()} songs added successfully
               </p>
               <a
                 href={playlistLink}
@@ -514,8 +523,8 @@ export default function Bihag() {
               </a>
 
               {/* Thumbs Up/Down Feedback */}
-              <div className="pt-4 border-t border-emerald-500/30">
-                <p className="text-sm text-gray-700 mb-3">How was your experience?</p>
+              <div className="pt-4 border-t border-green-300">
+                <p className="text-sm text-gray-800 font-medium mb-3">How was your experience?</p>
                 <div className="flex justify-center space-x-4">
                   <button
                     onClick={async () => {
@@ -526,10 +535,10 @@ export default function Bihag() {
                       });
                       alert('Thank you for your feedback! 😊');
                     }}
-                    className="flex items-center space-x-2 px-6 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-lg transition-all"
+                    className="flex items-center space-x-2 px-6 py-3 bg-green-100 hover:bg-green-200 border-2 border-green-400 rounded-lg transition-all"
                   >
                     <span className="text-2xl">👍</span>
-                    <span className="text-emerald-300 font-medium">Great!</span>
+                    <span className="text-green-800 font-bold">Great!</span>
                   </button>
                   <button
                     onClick={async () => {
@@ -540,10 +549,10 @@ export default function Bihag() {
                       });
                       alert('Thank you for your feedback. We\'ll work on improvements! 🙏');
                     }}
-                    className="flex items-center space-x-2 px-6 py-3 bg-slate-700/30 hover:bg-slate-700/50 border border-slate-600/40 rounded-lg transition-all"
+                    className="flex items-center space-x-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 border-2 border-gray-400 rounded-lg transition-all"
                   >
                     <span className="text-2xl">👎</span>
-                    <span className="text-gray-700 font-medium">Needs work</span>
+                    <span className="text-gray-800 font-bold">Needs work</span>
                   </button>
                 </div>
               </div>
@@ -551,10 +560,10 @@ export default function Bihag() {
               {/* Added Tracks */}
               {addedTracks.length > 0 && (
                 <details className="text-left text-sm mt-4">
-                  <summary className="cursor-pointer font-semibold text-emerald-400 hover:text-emerald-300">
+                  <summary className="cursor-pointer font-semibold text-green-700 hover:text-green-800">
                     ✅ Successfully added ({addedTracks.length})
                   </summary>
-                  <ul className="list-disc list-inside space-y-1 mt-2 text-gray-700 max-h-48 overflow-y-auto">
+                  <ul className="list-disc list-inside space-y-1 mt-2 text-gray-800 max-h-48 overflow-y-auto">
                     {addedTracks.map((track, i) => (
                       <li key={i}>{track}</li>
                     ))}
@@ -565,10 +574,10 @@ export default function Bihag() {
               {/* Skipped Tracks */}
               {skippedTracks.length > 0 && (
                 <details className="text-left text-sm mt-2">
-                  <summary className="cursor-pointer font-semibold text-amber-400 hover:text-amber-300">
+                  <summary className="cursor-pointer font-semibold text-amber-700 hover:text-amber-800">
                     ⚠️ Skipped (not found on YouTube) ({skippedTracks.length})
                   </summary>
-                  <ul className="list-disc list-inside space-y-1 mt-2 text-gray-700 max-h-48 overflow-y-auto">
+                  <ul className="list-disc list-inside space-y-1 mt-2 text-gray-800 max-h-48 overflow-y-auto">
                     {skippedTracks.map((track, i) => (
                       <li key={i}>{track}</li>
                     ))}
