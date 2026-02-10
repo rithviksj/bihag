@@ -39,7 +39,7 @@ export default function Bihag() {
       if (window.google) {
         window.googleTokenClient = window.google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
-          scope: "https://www.googleapis.com/auth/youtube",
+          scope: "https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
           callback: async (tokenResponse) => {
             if (tokenResponse && tokenResponse.access_token) {
               setAccessToken(tokenResponse.access_token);
@@ -47,15 +47,26 @@ export default function Bihag() {
 
               // Fetch user email from Google API
               try {
+                console.log("Fetching user info with token...");
                 const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
                   headers: {
                     Authorization: `Bearer ${tokenResponse.access_token}`,
                   },
                 });
+
+                if (!userInfoRes.ok) {
+                  console.error("UserInfo fetch failed:", userInfoRes.status, userInfoRes.statusText);
+                  const errorData = await userInfoRes.json();
+                  console.error("Error details:", errorData);
+                  throw new Error(`Failed to fetch user info: ${userInfoRes.status}`);
+                }
+
                 const userInfo = await userInfoRes.json();
+                console.log("User info response:", userInfo);
+
                 if (userInfo.email) {
-                  console.log("User email detected:", userInfo.email);
-                  console.log("Is admin user:", userInfo.email === "rithviksj@gmail.com");
+                  console.log("✅ User email detected:", userInfo.email);
+                  console.log("✅ Is admin user:", userInfo.email === "rithviksj@gmail.com");
                   setUserEmail(userInfo.email);
 
                   // Log authenticated user activity
@@ -75,9 +86,13 @@ export default function Bihag() {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email: userInfo.email }),
                   });
+                } else {
+                  console.warn("⚠️ No email in userInfo response");
                 }
               } catch (emailError) {
-                console.error("Error fetching user email:", emailError);
+                console.error("❌ Error fetching user email:", emailError);
+                console.error("Stack:", emailError.stack);
+                // Still set signed in, but without email (defaults to 5-song limit)
               }
             }
           },
@@ -417,14 +432,19 @@ export default function Bihag() {
             {/* Parsed Songs - Ready to Save */}
             {parsedSongs.length > 0 && !playlistLink && (
               <div className="space-y-6">
-                <div className="bg-emerald-900/20 border border-emerald-500/30 rounded-lg p-4">
-                  <h3 className="text-lg font-semibold text-emerald-300 mb-2">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-4 shadow-md">
+                  <h3 className="text-lg font-bold text-green-800 mb-2">
                     ✅ Playlist Ready! Found {parsedSongs.length} song{parsedSongs.length !== 1 ? "s" : ""}
                   </h3>
+                  {userEmail && (
+                    <p className="text-xs text-gray-700 font-medium mb-2">
+                      Signed in as: {userEmail} {userEmail === "rithviksj@gmail.com" && "👑 (Admin - Unlimited)"}
+                    </p>
+                  )}
                   {(() => {
                     const limit = userEmail === "rithviksj@gmail.com" ? parsedSongs.length : 5;
                     return parsedSongs.length > limit && (
-                      <p className="text-sm text-gray-700 font-medium">
+                      <p className="text-sm text-gray-800 font-bold">
                         {userEmail === "rithviksj@gmail.com"
                           ? "✨ All songs will be added to the YouTube playlist."
                           : "⚠️ Only the first 5 songs will be added due to YouTube API quota limits."}
@@ -435,15 +455,15 @@ export default function Bihag() {
 
                 {/* Song List Preview */}
                 <details className="text-sm">
-                  <summary className="cursor-pointer font-semibold text-green-700 hover:text-green-600">
-                    Preview songs ({(() => {
+                  <summary className="cursor-pointer font-bold text-green-800 hover:text-green-900">
+                    ▶ Preview songs ({(() => {
                       const limit = userEmail === "rithviksj@gmail.com" ? parsedSongs.length : 5;
                       return Math.min(limit, parsedSongs.length);
                     })()} will be added)
                   </summary>
                   <ul className="list-disc list-inside space-y-2 mt-4 text-base max-h-64 overflow-y-auto">
                     {parsedSongs.slice(0, userEmail === "rithviksj@gmail.com" ? parsedSongs.length : 5).map((song, i) => (
-                      <li key={i} className="text-gray-700">
+                      <li key={i} className="text-gray-800 font-medium">
                         {song.combined}
                       </li>
                     ))}
