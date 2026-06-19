@@ -324,6 +324,11 @@ export default function Bihag() {
           <p className="text-lg text-gray-600 font-medium">
             ✨ The app you never knew you needed but always deserved.
           </p>
+          <div>
+            <a href="/shazam" className="text-sm text-blue-600 hover:underline">
+              Shazam Finds 🎵 →
+            </a>
+          </div>
         </div>
 
         {/* Workflow Diagram */}
