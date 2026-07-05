@@ -29,6 +29,22 @@ export default function Bihag() {
   const [userEmail, setUserEmail] = useState(null);
   const [error, setError] = useState(null);
   const [quotaError, setQuotaError] = useState(false);
+  const [urlSource, setUrlSource] = useState(null); // "spotify" | "web" | null
+
+  const isSpotifyUrl = (url) => {
+    try {
+      const p = new URL(url);
+      return p.hostname === "open.spotify.com" && p.pathname.startsWith("/playlist/");
+    } catch {
+      return false;
+    }
+  };
+
+  const handleUrlChange = (e) => {
+    const val = e.target.value;
+    setPlaylistUrl(val);
+    setUrlSource(isSpotifyUrl(val) ? "spotify" : val ? "web" : null);
+  };
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -112,22 +128,24 @@ export default function Bihag() {
 
   const handleScrapePlaylist = async () => {
     if (!playlistUrl) {
-      setError("Please enter a radio station playlist URL");
+      setError("Please enter a playlist URL");
       return;
     }
 
     setLoading(true);
     setError(null);
     setQuotaError(false);
-    setScrapingStatus("Fetching playlist from radio station...");
+    setScrapingStatus(
+      isSpotifyUrl(playlistUrl)
+        ? "Fetching playlist from Spotify..."
+        : "Fetching playlist from radio station..."
+    );
     setParsedSongs([]);
 
     try {
       const response = await fetch("/api/scrape-playlist", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: playlistUrl }),
       });
 
@@ -141,13 +159,18 @@ export default function Bihag() {
       }
 
       if (!data.songs || data.songs.length === 0) {
-        setError("No songs found on this page. Please check the URL and try again.");
+        setError("No songs found. Please check the URL and try again.");
         setScrapingStatus("");
         setLoading(false);
         return;
       }
 
       setParsedSongs(data.songs);
+      setUrlSource(data.source || null);
+      // Auto-fill playlist name from Spotify metadata
+      if (data.playlistName && !playlistName) {
+        setPlaylistName(data.playlistName);
+      }
       setScrapingStatus(`Found ${data.count} song${data.count !== 1 ? "s" : ""}!`);
     } catch (err) {
       console.error("Scraping error:", err);
@@ -319,7 +342,7 @@ export default function Bihag() {
             Bihag
           </h1>
           <p className="text-2xl leading-relaxed font-light max-w-3xl mx-auto text-gray-700">
-            Turn radio station playlists into YouTube playlist collection — effortlessly.
+            Turn Spotify playlists or radio station charts into YouTube playlist collections — effortlessly.
           </p>
           <p className="text-lg text-gray-600 font-medium">
             ✨ The app you never knew you needed but always deserved.
@@ -339,16 +362,33 @@ export default function Bihag() {
           <CardContent className="space-y-8 pt-8 pb-10 px-6">
             {/* URL Input */}
             <div className="space-y-4">
-              <label className="block text-sm font-medium text-gray-700">Radio Station Playlist URL</label>
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-gray-700">
+                  Playlist URL
+                </label>
+                {urlSource === "spotify" && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1DB954]/15 text-[#1DB954] border border-[#1DB954]/30">
+                    <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                    </svg>
+                    Spotify detected
+                  </span>
+                )}
+                {urlSource === "web" && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                    🌐 Radio / Web
+                  </span>
+                )}
+              </div>
               <Input
                 type="url"
-                placeholder="e.g., https://www.billboard.com/charts/hot-100"
+                placeholder="e.g., https://open.spotify.com/playlist/... or https://www.billboard.com/charts/hot-100"
                 value={playlistUrl}
-                onChange={(e) => setPlaylistUrl(e.target.value)}
+                onChange={handleUrlChange}
                 className="py-3 text-base bg-white text-gray-900 border-gray-300 focus:border-cyan-500"
               />
               <p className="text-xs text-gray-600">
-                Paste the URL of a radio station's playlist page or music chart
+                Paste a <strong>Spotify playlist URL</strong> or a radio station / music chart page
               </p>
             </div>
 
@@ -435,7 +475,15 @@ export default function Bihag() {
                 <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-4 shadow-md">
                   <h3 className="text-lg font-bold text-green-800 mb-2">
                     ✅ Playlist Ready! Found {parsedSongs.length} song{parsedSongs.length !== 1 ? "s" : ""}
+                    {urlSource === "spotify" && (
+                      <span className="ml-2 text-sm font-semibold text-[#1DB954]">· via Spotify</span>
+                    )}
                   </h3>
+                  {urlSource === "spotify" && (
+                    <p className="text-xs text-green-700 font-medium mb-2">
+                      🎵 Only playlist tracks included — Spotify's "Recommended" section skipped automatically.
+                    </p>
+                  )}
                   {userEmail && (
                     <p className="text-xs text-gray-700 font-medium mb-2">
                       Signed in as: {userEmail} {userEmail === "rithviksj@gmail.com" && "👑 (Admin - Unlimited)"}

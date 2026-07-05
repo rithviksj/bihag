@@ -6,7 +6,7 @@ export default function WorkflowDiagram() {
       number: 1,
       icon: "🔍",
       title: "Enter URL",
-      description: "Paste radio station playlist link",
+      description: "Paste Spotify or radio station playlist link",
       gradient: "from-gray-300 to-gray-400",
       actor: "you",
     },

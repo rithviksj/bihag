@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { scrapePlaylist } from "@/lib/playlistScraper";
+import { isSpotifyPlaylistUrl, scrapeSpotifyPlaylist } from "@/lib/spotifyScraper";
 
 // Rate limiting map (simple in-memory, resets on server restart)
 const rateLimitMap = new Map();
@@ -72,8 +73,10 @@ export async function POST(request) {
       );
     }
 
-    // Scrape the playlist
-    const result = await scrapePlaylist(url);
+    // Route Spotify URLs to the Spotify API, everything else to the HTML scraper
+    const result = isSpotifyPlaylistUrl(url)
+      ? await scrapeSpotifyPlaylist(url)
+      : await scrapePlaylist(url);
 
     if (result.error) {
       return NextResponse.json(
@@ -89,6 +92,8 @@ export async function POST(request) {
     return NextResponse.json({
       songs: result.songs,
       count: result.count,
+      playlistName: result.playlistName || null,
+      source: isSpotifyPlaylistUrl(url) ? "spotify" : "web",
       success: true,
     });
   } catch (error) {
